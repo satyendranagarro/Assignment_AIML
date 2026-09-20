@@ -6,7 +6,7 @@ Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Re
 
 ## Status
 
-**Phase 5 agents done.** Next: Phase 6 deliverables + MCP/app Compose. See [`DECISIONS.md`](DECISIONS.md).
+**All phases complete (0 → 6).** See [`DECISIONS.md`](DECISIONS.md).
 
 | Phase | Status |
 |-------|--------|
@@ -17,42 +17,82 @@ Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Re
 | 3 Ontology | done |
 | 4 Load KB into infra | done |
 | 5 Agents + MCP + UI | done |
-| 6 Deliverables + runtime IaC | pending |
+| 6 Deliverables + runtime IaC | done |
 
 ## Architecture
 
-Start here: [`docs/architecture/00-overview.md`](docs/architecture/00-overview.md)
-
-Knowledge infra: [`infra/README.md`](infra/README.md) · [`docs/architecture/01b-knowledge-infra.md`](docs/architecture/01b-knowledge-infra.md)
-
-Ops / MCP–app IaC (Phase 6): [`docs/architecture/06-ops-and-acceptance.md`](docs/architecture/06-ops-and-acceptance.md)
-
-Use cases: [`docs/USE_CASES.md`](docs/USE_CASES.md)
-
-Agent workflow skill: [`.cursor/skills/travel-assistant-pipeline/SKILL.md`](.cursor/skills/travel-assistant-pipeline/SKILL.md)
+| Doc | Content |
+|-----|---------|
+| [`docs/architecture/00-overview.md`](docs/architecture/00-overview.md) | System context |
+| [`docs/architecture/05-agents.md`](docs/architecture/05-agents.md) | Agents A0–A4 |
+| [`docs/architecture/06-ops-and-acceptance.md`](docs/architecture/06-ops-and-acceptance.md) | Ops + acceptance |
+| [`infra/README.md`](infra/README.md) | Compose units (knowledge + MCP + app) |
+| [`docs/USE_CASES.md`](docs/USE_CASES.md) | Use-case pass bar |
+| [`docs/SAMPLE_QA.md`](docs/SAMPLE_QA.md) | Sample prompts / expected labels |
+| [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md) | Live / offline demo steps |
 
 ## Stack (A)
 
 LangChain · OpenAI / Gemini / Cursor · Chroma · Neo4j · Streamlit · MCP (weather + currency)
 
-**Infra:** `infra/neo4j` + `infra/chroma` (Phase 1.5). Agents reuse the same stores. Phase 5–6 adds MCP/app.
+Agents reuse the **same** Neo4j/Chroma that Phase 4 loads (Phase 1.5 Compose).
 
-## Setup
+## Quick start (offline demo)
 
-Requires **Python 3.10+** (3.12 recommended; `mcp` package).
+Requires **Python 3.10+** (3.12 recommended).
 
-1. Copy `.env.example` → `.env` and set keys (`NEO4J_PASSWORD=changeme` for local Compose)  
-2. `python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`  
-3. Start knowledge infra: `docker compose -f infra/compose.yml up -d`  
-4. Optional live Chroma server: `export CHROMA_HOST=localhost CHROMA_PORT=8000` (omit for local `data/chroma/`)  
-5. `python scripts/crawl.py --force-manual --update-matrix`  
-6. `python scripts/build_ontology.py`  
-7. `python scripts/build_kb.py --embeddings fake --gate`  
-8. `python scripts/load_neo4j.py --require-neo4j` (or `--memory` offline)  
-9. Agents UI: `export LLM_PROVIDER=fake EMBEDDING_PROVIDER=fake MCP_MOCK_MODE=true && streamlit run app/streamlit_app.py`  
-10. Use cases: `pytest tests/test_phase5_agents.py tests/use_cases/ -q`  
+```bash
+cp .env.example .env
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 
-Phase 5 architecture: [`docs/architecture/05-agents.md`](docs/architecture/05-agents.md)
+# Index KB offline (if data/chroma empty)
+python scripts/crawl.py --force-manual
+python scripts/normalize.py
+python scripts/build_ontology.py
+python scripts/build_kb.py --embeddings fake --gate
+python scripts/load_neo4j.py --memory
+
+export LLM_PROVIDER=fake EMBEDDING_PROVIDER=fake MCP_MOCK_MODE=true
+streamlit run app/streamlit_app.py
+```
+
+Try prompts in [`docs/SAMPLE_QA.md`](docs/SAMPLE_QA.md). Checklist: [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md).
+
+```bash
+pytest tests/ -q
+```
+
+## Full local demo (Compose)
+
+```bash
+# 1. Knowledge stores
+export NEO4J_PASSWORD=changeme
+docker compose -f infra/compose.yml up -d
+
+# 2. Load into the same infra
+export CHROMA_HOST=localhost CHROMA_PORT=8000
+python scripts/build_kb.py --embeddings fake --gate   # or openai
+python scripts/load_neo4j.py --require-neo4j
+
+# 3. Optional MCP sidecars + Streamlit container
+docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
+# UI: http://localhost:8501
+# Or on host: streamlit run app/streamlit_app.py
+```
+
+Profiles: `pipeline` (kb job) · `mcp` (weather/currency) · `app` (Streamlit).
+
+## MCP notes
+
+- Agents use **in-process** Open-Meteo / Frankfurter clients by default.
+- `MCP_MOCK_MODE=true` → documented mocks for offline demos.
+- MCP down → explicit error; **no** fabricated temperatures or FX rates.
+- Stdio servers: `python -m mcp_servers.weather.server` / `currency.server`.
+
+## LLM toggle
+
+`LLM_PROVIDER=openai|gemini|cursor|fake` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
 
 ## Out of scope
 

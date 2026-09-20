@@ -10,72 +10,110 @@ Ship assignment deliverables (README, samples, demo) and finish **non-knowledge*
 
 | Artifact | Path | Role |
 |----------|------|------|
-| Ops runbook | this doc + README | Full demo start order |
+| Ops runbook | this doc + [`infra/README.md`](../../infra/README.md) | Full demo start order |
 | Knowledge IaC | `infra/neo4j/`, `infra/chroma/`, optional `infra/kb-pipeline/` | **Phase 1.5 done** |
-| MCP / app IaC | `infra/mcp-weather/`, `infra/mcp-currency/`, `infra/app/` | This phase (+ Phase 5 when servers exist) |
-| Optional umbrella | `infra/compose.yml` | `include` / profiles for “full local” |
+| MCP IaC | `infra/mcp-weather/`, `infra/mcp-currency/` | Profile `mcp` |
+| App IaC | `infra/app/` | Profile `app` (optional; host Streamlit preferred) |
+| Umbrella | `infra/compose.yml` | `include` + profiles `pipeline` / `mcp` / `app` |
 | Env contract | `.env.example` | Vars per unit |
-| Acceptance checklist | below | Assignment deliverables 15–20 |
+| Demo | [`DEMO_CHECKLIST.md`](../DEMO_CHECKLIST.md), [`SAMPLE_QA.md`](../SAMPLE_QA.md) | Grader / live demo |
+| Acceptance | below + [`USE_CASES.md`](../USE_CASES.md) | Assignment criteria |
 
 ## Infrastructure as code (split ownership)
 
 **Decision:** Docker Compose **per service** under `infra/`. Secrets stay in `.env`.
 
-### Knowledge units (Phase 1.5 — implement early)
+### Knowledge units (Phase 1.5 — done)
 
 | Service | Unit | Used by |
 |---------|------|---------|
-| Neo4j | `infra/neo4j/` | Phase 4 load + Phase 5 agents (**done**) |
-| Chroma | `infra/chroma/` | Phase 4 `build_kb` + Phase 5 retrieval (**done**) |
-| KB pipeline job (optional) | `infra/kb-pipeline/` | Reproducible DE → load (**done**) |
+| Neo4j | `infra/neo4j/` | Phase 4 load + Phase 5 agents |
+| Chroma | `infra/chroma/` | Phase 4 `build_kb` + Phase 5 retrieval |
+| KB pipeline job | `infra/kb-pipeline/` | Optional DE → load |
 
-### Runtime units (Phase 5–6)
+### Runtime units (Phase 6 — done)
 
 | Service | Unit | Notes |
 |---------|------|--------|
-| MCP weather | `infra/mcp-weather/` | After Phase 5 weather server exists |
+| MCP weather | `infra/mcp-weather/` | Profile `mcp`; stdio CMD or health sidecar |
 | MCP currency | `infra/mcp-currency/` | Independent of weather |
-| Streamlit app | `infra/app/` or documented CLI | Optional container |
+| Streamlit app | `infra/app/` | Profile `app`; mounts `data/` + `ontology/` |
 | LLM providers | `.env` only | Not local infra |
 
 ### Principles
 
-1. **Separate stacks** — start only what you need.
+1. **Separate stacks** — start only what you need (`up -d` vs `--profile mcp` / `app`).
 2. **One knowledge path** — agents never point at a different Neo4j/Chroma than Phase 4 loaded.
-3. **Offline fallback** — `--memory` / `--embeddings fake` for CI without Docker.
+3. **Offline fallback** — `--memory` / `--embeddings fake` / `MCP_MOCK_MODE=true` for CI without Docker.
 4. **Parity with `.env.example`**.
+5. **In-process MCP clients** remain the default for agents; Compose MCP units provide ops/stdio parity.
 
 ### Suggested start order (full local demo)
 
 ```text
 1. infra/neo4j + infra/chroma     (Phase 1.5)
-2. crawl → normalize → ontology   (or infra/kb-pipeline)
+2. crawl → normalize → ontology   (or --profile pipeline)
 3. build_kb + load_neo4j          (Phase 4 → into infra)
-4. infra/mcp-weather + mcp-currency
-5. Streamlit / infra/app
-6. tests/use_cases suite
+4. optional --profile mcp
+5. Streamlit host or --profile app
+6. pytest tests/use_cases/
 ```
 
-### Exit criteria (Phase 6 slice)
+```bash
+export NEO4J_PASSWORD=changeme
+docker compose -f infra/compose.yml up -d
+export CHROMA_HOST=localhost CHROMA_PORT=8000
+python scripts/build_kb.py --embeddings fake --gate
+python scripts/load_neo4j.py --require-neo4j
+docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
+# or: streamlit run app/streamlit_app.py
+pytest tests/use_cases/ -q
+```
 
-- [ ] MCP + optional app Compose documented (knowledge units already done in 1.5)
-- [ ] Optional umbrella compose with `profiles` or `include`
-- [ ] README full demo path; no secrets in git
-- [ ] Acceptance deliverables 15–20 checked
+### Exit criteria (Phase 6)
 
-## Ops runbook (to be filled)
+- [x] MCP + optional app Compose documented (knowledge units already done in 1.5)
+- [x] Umbrella compose with `profiles` (`pipeline`, `mcp`, `app`) + `include`
+- [x] README full demo path; no secrets in git
+- [x] Acceptance deliverables checked (below)
+- [x] `DEMO_CHECKLIST.md` + `SAMPLE_QA.md`
+- [x] `tests/test_phase6_ops.py` layout/env contract
 
-1. Start knowledge infra (1.5)  
+## Ops runbook
+
+1. Start knowledge infra (`docker compose -f infra/compose.yml up -d`)  
 2. Re-run crawl / normalize / ontology if sources change  
-3. Rebuild Chroma + load Neo4j (Phase 4 into same infra)  
-4. Start MCP servers  
-5. Run Streamlit  
-6. Run use-case suite  
+3. Rebuild Chroma + load Neo4j into the **same** infra  
+4. Optional: `--profile mcp` for weather/currency containers  
+5. Run Streamlit (host or `--profile app`)  
+6. Run `pytest tests/use_cases/ -q`  
+7. Tear down with `down` (add `-v` to wipe volumes)
+
+### MCP mock vs live
+
+| Mode | When | Behavior |
+|------|------|----------|
+| `MCP_MOCK_MODE=true` | Offline demos / CI | Documented mock weather + FX |
+| `MCP_MOCK_MODE=false` | Live demo | Open-Meteo + Frankfurter |
+| Tool failure | Network / force-fail | Explicit `[Error]`; **no** fabricated temps/rates |
 
 ## Acceptance checklist (assignment)
 
-Mirror [`00-overview.md`](00-overview.md) acceptance criteria and map to `docs/USE_CASES.md`. Deliverables: polished README, sample Q&A, short demo notes.
+| Criterion | Evidence |
+|-----------|----------|
+| KB from ≥3 travel resources | `data/sources.yaml` (4 sources); Phase 1–2 |
+| Embedding-based semantic retrieval | Chroma + `HybridRetriever`; Phase 4 |
+| Grounded answers with source references | `[KB fact]` + citations; UC-RAG-* |
+| Weather via MCP | `mcp_servers/weather`; UC-WX-* |
+| Currency via MCP | `mcp_servers/currency`; UC-FX-* |
+| ≥1 combined RAG + MCP | UC-COMBO-01 |
+| Multi-turn context | SessionState; UC-MEM-* |
+| Intent-based tool selection | A0 router; UC-ROUTE-* |
+| Missing KB / tool failures | UC-NEG-*, UC-WX-05, UC-FX-04 |
+| Simple usable UI | `app/streamlit_app.py` |
+
+Deliverables: polished [`README.md`](../../README.md), [`SAMPLE_QA.md`](../SAMPLE_QA.md), [`DEMO_CHECKLIST.md`](../DEMO_CHECKLIST.md).
 
 ## Phase 6 status
 
-**Planned.** Knowledge IaC is Phase 1.5; this phase focuses on deliverables + MCP/app/umbrella after Phase 5 use-case pass.
+**Complete.** Knowledge IaC remains Phase 1.5; this phase added MCP/app Compose profiles, umbrella includes, demo docs, and acceptance mapping. Pipeline is feature-complete for the assignment gate.

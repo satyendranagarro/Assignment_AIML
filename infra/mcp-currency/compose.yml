@@ -1,0 +1,36 @@
+# MCP currency server — Phase 6 runtime IaC
+# Usage (from repo root):
+#   docker compose -f infra/mcp-currency/compose.yml --profile mcp up -d --build
+#   docker compose -f infra/mcp-currency/compose.yml down
+
+services:
+  mcp-currency:
+    build:
+      context: ../..
+      dockerfile: infra/mcp-currency/Dockerfile
+    container_name: nagp-mcp-currency
+    profiles:
+      - mcp
+    environment:
+      MCP_MOCK_MODE: ${MCP_MOCK_MODE:-false}
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+    command:
+      [
+        "python",
+        "-c",
+        "import time; from mcp_servers.currency.tools import convert_currency; print('mcp-currency ready'); time.sleep(3600*24*365)",
+      ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from mcp_servers.currency.mock import mock_convert; assert mock_convert(1,'INR','SGD')['converted']",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped

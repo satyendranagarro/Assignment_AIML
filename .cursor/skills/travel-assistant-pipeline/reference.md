@@ -60,12 +60,12 @@ ontology/taxonomy.yaml, schema.json, entities.json
 scripts/ingest.py, crawl.py, normalize.py, build_kb.py, load_neo4j.py, eval_retrieval.py
 mcp_servers/weather/, currency/
 infra/neo4j/, chroma/, compose.yml, kb-pipeline/   # Phase 1.5 knowledge IaC
-infra/mcp-weather/, mcp-currency/, app/  # Phase 5–6 runtime IaC (planned)
+infra/mcp-weather/, mcp-currency/, app/            # Phase 6 runtime IaC
 src/llm/, observability/, rag/, graph/, agents/, prompts/
 app/streamlit_app.py
 logs/   # gitignored
 tests/use_cases/
-docs/architecture/00–06 (+ 01b), USE_CASES.md
+docs/architecture/00–06 (+ 01b), USE_CASES.md, DEMO_CHECKLIST.md, SAMPLE_QA.md
 ```
 
 ## IaC units
@@ -76,17 +76,17 @@ docs/architecture/00–06 (+ 01b), USE_CASES.md
 |------|---------|
 | `infra/neo4j/compose.yml` | Neo4j graph store |
 | `infra/chroma/compose.yml` | Chroma vector server |
-| `infra/compose.yml` | Umbrella + optional `kb-pipeline` profile |
+| `infra/compose.yml` | Umbrella + profiles |
 | `infra/kb-pipeline/Dockerfile` | Optional DE → load job |
 
 Set `CHROMA_HOST=localhost` when using Compose Chroma; leave unset for `CHROMA_PATH=data/chroma`.
 
-**Phase 5–6 (runtime):**
+**Phase 6 (runtime):**
 
-| Path | Service |
-|------|---------|
-| `infra/mcp-weather/` | Weather MCP server |
-| `infra/mcp-currency/` | Currency MCP server |
-| `infra/app/` | Optional Streamlit container |
+| Path | Service | Profile |
+|------|---------|---------|
+| `infra/mcp-weather/` | Weather MCP | `mcp` |
+| `infra/mcp-currency/` | Currency MCP | `mcp` |
+| `infra/app/` | Optional Streamlit | `app` |
 
 See [`01b-knowledge-infra.md`](../../../docs/architecture/01b-knowledge-infra.md) and [`06-ops-and-acceptance.md`](../../../docs/architecture/06-ops-and-acceptance.md).

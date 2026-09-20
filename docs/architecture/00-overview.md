@@ -82,18 +82,18 @@ Flight/hotel booking, payments, route navigation, reservations.
 
 ## Acceptance criteria (assignment)
 
-- [ ] KB from ≥3 travel resources
-- [ ] Embedding-based semantic retrieval
-- [ ] Grounded answers with source references
-- [ ] Weather via MCP
-- [ ] Currency via MCP
-- [ ] ≥1 combined RAG + MCP response
-- [ ] Multi-turn context retained
-- [ ] Intent-based tool selection
-- [ ] Clear handling of missing KB / tool failures
-- [ ] Simple usable UI
+- [x] KB from ≥3 travel resources
+- [x] Embedding-based semantic retrieval
+- [x] Grounded answers with source references
+- [x] Weather via MCP
+- [x] Currency via MCP
+- [x] ≥1 combined RAG + MCP response
+- [x] Multi-turn context retained
+- [x] Intent-based tool selection
+- [x] Clear handling of missing KB / tool failures
+- [x] Simple usable UI
 
-Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md).
+Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md). Evidence: [`06-ops-and-acceptance.md`](06-ops-and-acceptance.md), [`DEMO_CHECKLIST.md`](../DEMO_CHECKLIST.md).
 
 ## Related docs
 
@@ -117,23 +117,23 @@ Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md).
 | `infra/chroma/` | Vector DB + volume |
 | `infra/kb-pipeline/` (optional) | DE → load job |
 
-**Runtime (Phase 5–6):**
+**Runtime (Phase 6 — done):**
 
 | Unit | Service |
 |------|---------|
-| `infra/mcp-weather/` | Weather MCP |
-| `infra/mcp-currency/` | Currency MCP |
-| `infra/app/` (optional) | Streamlit UI |
+| `infra/mcp-weather/` | Weather MCP (`--profile mcp`) |
+| `infra/mcp-currency/` | Currency MCP (`--profile mcp`) |
+| `infra/app/` (optional) | Streamlit UI (`--profile app`) |
 
 LLM providers stay `.env` only. Details: [`01b-knowledge-infra.md`](01b-knowledge-infra.md), [`06-ops-and-acceptance.md`](06-ops-and-acceptance.md).
 
 ## Phase status
 
 - **Phase 0 — Complete.** Skill, scaffold, this overview, USE_CASES, README, DECISIONS, `.env.example`, `requirements.txt`, `.gitignore`.
-- **Phase 1 — Complete.** See [`01-data-pipeline.md`](01-data-pipeline.md): `data/sources.yaml` (≥3 sources), `data/coverage_matrix.yaml`, `scripts/ingest.py` / `normalize.py`, `src/data/`.
-- **Phase 1.5 — Complete.** Knowledge Compose units; see [`01b-knowledge-infra.md`](01b-knowledge-infra.md) and [`infra/README.md`](../../infra/README.md).
-- **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md): allowlisted crawl, manual fallbacks, topic buckets green.
-- **Phase 3 — Complete.** See [`03-ontology.md`](03-ontology.md): taxonomy, gazetteer extract, ≥20 spot-checked entities.
-- **Phase 4 — Complete.** Load path + HybridRetriever; live via Phase 1.5 or offline `--memory` / local Chroma. See [`04-stores.md`](04-stores.md).
-- **Phase 5 — Complete.** Agents A0–A4, MCP weather/currency, Streamlit UI, use-case suite. See [`05-agents.md`](05-agents.md). Next: Phase 6 deliverables + MCP/app IaC.
-- **Phase 6 — Planned.** Deliverables + MCP/app umbrella; knowledge IaC is Phase 1.5.
+- **Phase 1 — Complete.** See [`01-data-pipeline.md`](01-data-pipeline.md).
+- **Phase 1.5 — Complete.** Knowledge Compose units; see [`01b-knowledge-infra.md`](01b-knowledge-infra.md).
+- **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md).
+- **Phase 3 — Complete.** See [`03-ontology.md`](03-ontology.md).
+- **Phase 4 — Complete.** See [`04-stores.md`](04-stores.md).
+- **Phase 5 — Complete.** Agents A0–A4, MCP, Streamlit; see [`05-agents.md`](05-agents.md).
+- **Phase 6 — Complete.** Deliverables + MCP/app umbrella; see [`06-ops-and-acceptance.md`](06-ops-and-acceptance.md), [`DEMO_CHECKLIST.md`](../DEMO_CHECKLIST.md), [`SAMPLE_QA.md`](../SAMPLE_QA.md).

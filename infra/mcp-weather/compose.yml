@@ -1,0 +1,42 @@
+# MCP weather server — Phase 6 runtime IaC
+# Usage (from repo root):
+#   docker compose -f infra/mcp-weather/compose.yml up -d --build
+#   docker compose -f infra/mcp-weather/compose.yml down
+#
+# Stdio MCP for hosts (Cursor / Claude Desktop): attach to this image's CMD.
+# In-process agent path does not require this container (see MCP_MOCK_MODE).
+
+services:
+  mcp-weather:
+    build:
+      context: ../..
+      dockerfile: infra/mcp-weather/Dockerfile
+    container_name: nagp-mcp-weather
+    profiles:
+      - mcp
+    environment:
+      MCP_MOCK_MODE: ${MCP_MOCK_MODE:-false}
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+    # Keep alive so Compose can healthcheck the tool import path.
+    # For real MCP stdio attach, override command to:
+    #   python -m mcp_servers.weather.server
+    command:
+      [
+        "python",
+        "-c",
+        "import time; from mcp_servers.weather.tools import fetch_current_weather; print('mcp-weather ready'); time.sleep(3600*24*365)",
+      ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from mcp_servers.weather.mock import mock_current; assert mock_current()['place']",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped

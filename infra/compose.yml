@@ -1,14 +1,30 @@
-# Knowledge umbrella: Neo4j + Chroma (+ optional kb-pipeline profile).
-# Usage (from repo root):
+# Full local umbrella — knowledge (always) + optional runtime profiles.
+#
+# From repo root:
 #   export NEO4J_PASSWORD=changeme
 #   docker compose -f infra/compose.yml up -d
+#     → Neo4j + Chroma only
+#
+#   docker compose -f infra/compose.yml --profile mcp up -d --build
+#     → + MCP weather/currency sidecars
+#
+#   docker compose -f infra/compose.yml --profile app up -d --build
+#     → + Streamlit on :8501
+#
+#   docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
+#     → knowledge + MCP + UI
+#
 #   docker compose -f infra/compose.yml --profile pipeline run --rm kb-pipeline \
-#     python scripts/ingest.py
+#     python scripts/build_kb.py --embeddings fake
+#
 #   docker compose -f infra/compose.yml down
 
 include:
   - path: neo4j/compose.yml
   - path: chroma/compose.yml
+  - path: mcp-weather/compose.yml
+  - path: mcp-currency/compose.yml
+  - path: app/compose.yml
 
 services:
   kb-pipeline:

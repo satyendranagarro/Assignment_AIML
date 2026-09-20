@@ -1,0 +1,47 @@
+# Streamlit app — Phase 6 runtime IaC (optional)
+# Usage (from repo root):
+#   docker compose -f infra/app/compose.yml --profile app up -d --build
+#   open http://localhost:8501
+#
+# Prefer host `streamlit run app/streamlit_app.py` for local dev.
+# When using Compose Chroma/Neo4j, set CHROMA_HOST / NEO4J_* in .env.
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: infra/app/Dockerfile
+    container_name: nagp-app
+    profiles:
+      - app
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    env_file:
+      - path: ../../.env
+        required: false
+    environment:
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      # Inside Compose network, prefer service DNS when knowledge stack is up
+      NEO4J_URI: ${NEO4J_URI:-bolt://host.docker.internal:7687}
+      CHROMA_HOST: ${CHROMA_HOST:-}
+      CHROMA_PORT: ${CHROMA_PORT:-8000}
+      CHROMA_PATH: /app/data/chroma
+      LLM_PROVIDER: ${LLM_PROVIDER:-fake}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-fake}
+      MCP_MOCK_MODE: ${MCP_MOCK_MODE:-true}
+    volumes:
+      - ../../data:/app/data
+      - ../../ontology:/app/ontology
+      - ../../.env:/app/.env:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health')\" || exit 1",
+        ]
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+    restart: unless-stopped
