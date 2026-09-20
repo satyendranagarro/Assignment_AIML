@@ -4,7 +4,7 @@ Companion to `SKILL.md`. Keep URLs and schemas here so the skill stays short.
 
 ## Recommended Singapore sources (Phase 1 registry)
 
-Populate exact URLs in `data/sources.yaml` during Phase 1. Named in the assignment:
+Exact URLs live in [`data/sources.yaml`](../../../data/sources.yaml). Coverage: [`data/coverage_matrix.yaml`](../../../data/coverage_matrix.yaml).
 
 | Source | Intended coverage |
 |--------|-------------------|

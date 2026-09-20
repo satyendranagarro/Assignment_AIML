@@ -32,7 +32,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **1 — Data engineering** |
+| Active phase | **2 — Crawl** |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -40,7 +40,7 @@ See `.env.example`.
 | Phase | Status | Outcome / decision for next phase |
 |-------|--------|-----------------------------------|
 | 0 Skill + scaffold | **done** | Skill, dirs, overview, USE_CASES, `.env.example`, `requirements.txt`, `.gitignore` present. Proceed to Phase 1. |
-| 1 Data pipeline | pending | — |
+| 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. |
 | 2 Crawl | pending | — |
 | 3 Ontology | pending | — |
 | 4 Stores | pending | — |

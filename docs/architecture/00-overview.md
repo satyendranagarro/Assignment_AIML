@@ -103,6 +103,7 @@ Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md).
 | `05-agents.md` | 5 |
 | `06-ops-and-acceptance.md` | 6 |
 
-## Phase 0 status
+## Phase status
 
-**Complete.** Skill, scaffold dirs, this overview, USE_CASES skeleton, README, DECISIONS, `.env.example`, `requirements.txt`, and `.gitignore` are in place. Next: Phase 1 (`01-data-pipeline.md`).
+- **Phase 0 — Complete.** Skill, scaffold, this overview, USE_CASES, README, DECISIONS, `.env.example`, `requirements.txt`, `.gitignore`.
+- **Phase 1 — Complete.** See [`01-data-pipeline.md`](01-data-pipeline.md): `data/sources.yaml` (≥3 sources), `data/coverage_matrix.yaml`, `scripts/ingest.py` / `normalize.py`, `src/data/`. Next: Phase 2 crawl (`02-crawl.md`).

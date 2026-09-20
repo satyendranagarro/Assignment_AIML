@@ -6,12 +6,12 @@ Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Re
 
 ## Status
 
-**Phase 0 complete (scaffold + docs).** Implementation of Phases 1–6 is gated; see [`DECISIONS.md`](DECISIONS.md).
+**Phase 1 complete (source registry + coverage + ingest/normalize).** Next: Phase 2 crawl. See [`DECISIONS.md`](DECISIONS.md).
 
 | Phase | Status |
 |-------|--------|
 | 0 Skill + scaffold | done |
-| 1 Data pipeline | pending |
+| 1 Data pipeline | done |
 | 2 Crawl | pending |
 | 3 Ontology | pending |
 | 4 Chroma + Neo4j | pending |

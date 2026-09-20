@@ -1,0 +1,118 @@
+# Phase 1 source registry — Singapore travel knowledge base
+# Citations must retain title + url through crawl → normalize → chunk → retrieve.
+# Review each publisher's reuse terms before redistributing extracted content.
+
+destination: Singapore
+version: "1.0"
+updated: "2026-09-20"
+
+defaults:
+  user_agent: "NAGP-AIML-TravelAssistant/0.1 (educational; contact via repo README)"
+  respect_robots_txt: true
+  request_delay_seconds: 1.5
+
+sources:
+  - id: wikivoyage-singapore
+    title: "Singapore – Travel guide at Wikivoyage"
+    url: "https://en.wikivoyage.org/wiki/Singapore"
+    publisher: Wikivoyage
+    license: "CC BY-SA 4.0"
+    reuse_notes: >
+      Content is Creative Commons Attribution-ShareAlike. Preserve attribution
+      and share-alike when redistributing derived text. Prefer Wikivoyage over
+      Wikipedia for travel-oriented structure.
+    fetch_mode: crawl
+    priority: 1
+    topics:
+      - districts
+      - attractions
+      - transport
+      - food
+      - practical
+      - itineraries
+      - indoor_outdoor
+    seed_urls:
+      - "https://en.wikivoyage.org/wiki/Singapore"
+      - "https://en.wikivoyage.org/wiki/Three_days_in_Singapore"
+    allowlist_hosts:
+      - en.wikivoyage.org
+    citation:
+      title: "Singapore – Travel guide at Wikivoyage"
+      url: "https://en.wikivoyage.org/wiki/Singapore"
+
+  - id: visitsg-essentials
+    title: "Visit Singapore — Plan Your Trip / Travellers Essentials"
+    url: "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/"
+    publisher: Singapore Tourism Board (Visit Singapore)
+    license: "All rights reserved — fair educational excerpt only"
+    reuse_notes: >
+      Official tourism site. Do not mirror the full site. Phase 2 crawl should
+      keep short excerpts needed for RAG; if ToS/robots block automated fetch,
+      fall back to a manually curated Markdown dump with retained title + URL.
+    fetch_mode: crawl
+    priority: 2
+    topics:
+      - practical
+      - climate
+      - language
+      - connectivity
+      - transport
+      - services
+    seed_urls:
+      - "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/"
+      - "https://www.visitsingapore.com/content/mice/en/tools-and-resources/plan-your-trip/"
+    allowlist_hosts:
+      - www.visitsingapore.com
+      - visitsingapore.com
+    citation:
+      title: "Visit Singapore — Plan Your Trip / Travellers Essentials"
+      url: "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/"
+
+  - id: visitsg-itineraries
+    title: "Visit Singapore — Sample Itineraries"
+    url: "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/"
+    publisher: Singapore Tourism Board (Visit Singapore)
+    license: "All rights reserved — fair educational excerpt only"
+    reuse_notes: >
+      Sample duration/profile itineraries. Prefer excerpting day-structure and
+      attraction names; cite the official page URL on every chunk.
+    fetch_mode: crawl
+    priority: 2
+    topics:
+      - itineraries
+      - attractions
+      - indoor_outdoor
+      - family
+    seed_urls:
+      - "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/"
+    allowlist_hosts:
+      - www.visitsingapore.com
+      - visitsingapore.com
+    citation:
+      title: "Visit Singapore — 7 Days in Singapore Itinerary"
+      url: "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/"
+
+  - id: visitsg-things-to-do
+    title: "Visit Singapore — Top Things to Do"
+    url: "https://www.visitsingapore.com/things-to-do/top-things-to-do/"
+    publisher: Singapore Tourism Board (Visit Singapore)
+    license: "All rights reserved — fair educational excerpt only"
+    reuse_notes: >
+      Attractions and activities by visitor interest. Keep category labels
+      (family, culture, nature, etc.) as metadata when normalizing.
+    fetch_mode: crawl
+    priority: 2
+    topics:
+      - attractions
+      - indoor_outdoor
+      - family
+      - culture
+      - food
+    seed_urls:
+      - "https://www.visitsingapore.com/things-to-do/top-things-to-do/"
+    allowlist_hosts:
+      - www.visitsingapore.com
+      - visitsingapore.com
+    citation:
+      title: "Visit Singapore — Top Things to Do"
+      url: "https://www.visitsingapore.com/things-to-do/top-things-to-do/"

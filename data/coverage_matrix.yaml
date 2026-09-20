@@ -1,0 +1,119 @@
+# Phase 1 coverage matrix — required destination topics vs registered sources.
+# status values:
+#   planned  — source intends to cover; not yet crawled/normalized
+#   green    — enough processed content present for RAG
+#   yellow   — thin / partial; Phase 2 should expand seed URLs
+#   red      — gap; must add source or manual dump before Phase 4
+
+destination: Singapore
+version: "1.0"
+updated: "2026-09-20"
+min_sources_required: 3
+assignment_topics_required: true
+
+# Exit gate (Phase 1 → 2): every required topic has ≥1 covering source_id
+# and overall source count ≥ min_sources_required. Content fill happens in Phase 2.
+
+topics:
+  - id: attractions
+    label: Major attractions
+    required: true
+    assignment_ref: "Major attractions and neighbourhoods"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-things-to-do
+      - visitsg-itineraries
+    status: planned
+    notes: Primary RAG answers for must-visit sights.
+
+  - id: neighbourhoods
+    label: Neighbourhoods / districts
+    required: true
+    assignment_ref: "Major attractions and neighbourhoods"
+    covered_by:
+      - wikivoyage-singapore
+    status: planned
+    notes: Wikivoyage district articles are the main source; expand seeds in Phase 2 if thin.
+
+  - id: transport
+    label: Local transportation
+    required: true
+    assignment_ref: "Local transportation guidance"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-essentials
+    status: planned
+    notes: MRT/bus/taxi/Tourist Pass guidance.
+
+  - id: cultural_practical
+    label: Cultural and practical travel tips
+    required: true
+    assignment_ref: "Cultural and practical travel tips"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-essentials
+    status: planned
+    notes: Customs, language, connectivity, visitor services.
+
+  - id: food
+    label: Food and local experiences
+    required: true
+    assignment_ref: "Food and local experiences"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-things-to-do
+    status: planned
+    notes: Hawker / neighbourhood food guidance; not restaurant booking.
+
+  - id: itineraries
+    label: Sample itineraries
+    required: true
+    assignment_ref: "Sample itineraries"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-itineraries
+    status: planned
+    notes: Includes Wikivoyage Three days in Singapore seed.
+
+  - id: indoor_outdoor
+    label: Indoor and outdoor activity suggestions
+    required: true
+    assignment_ref: "Indoor and outdoor activity suggestions"
+    covered_by:
+      - wikivoyage-singapore
+      - visitsg-things-to-do
+      - visitsg-itineraries
+    status: planned
+    notes: Critical for weather-aware combined itineraries (Phase 5).
+
+  - id: climate
+    label: Climate / packing context (static)
+    required: false
+    assignment_ref: "Visit Singapore Essential — climate"
+    covered_by:
+      - visitsg-essentials
+      - wikivoyage-singapore
+    status: planned
+    notes: Static climate tips only; live forecast via MCP Weather (not KB).
+
+  - id: family
+    label: Family-friendly activities
+    required: false
+    assignment_ref: "Suggest activities for a family with children"
+    covered_by:
+      - visitsg-things-to-do
+      - visitsg-itineraries
+    status: planned
+
+gate:
+  phase_1_exit:
+    description: "≥3 sources registered; every required topic has ≥1 covering source; citation title+url present"
+    checks:
+      - sources_count_ge_3
+      - required_topics_mapped
+      - citation_metadata_complete
+    decision_table:
+      gaps: "Targeted crawl of missing topic seeds in Phase 2"
+      tos_block: "Manual Markdown dump under data/raw/<source_id>/ with title+url sidecar"
+      thin: "Add more allowlisted seed URLs for thin topics"
+      full: "Light refresh crawl only"
