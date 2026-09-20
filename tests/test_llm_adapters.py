@@ -90,6 +90,15 @@ def test_cursor_embeddings_require_override_without_gateway(monkeypatch):
         adapter.get_embeddings()
 
 
+def test_ollama_adapter_unreachable(monkeypatch):
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://127.0.0.1:9")
+    from src.llm.adapters.ollama import OllamaAdapter
+
+    adapter = OllamaAdapter()
+    with pytest.raises(ConfigError, match="Ollama is not reachable"):
+        adapter.get_embeddings()
+
+
 def test_resolve_provider_rejects_unknown(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "nope")
     with pytest.raises(ConfigError, match="Unknown LLM_PROVIDER"):

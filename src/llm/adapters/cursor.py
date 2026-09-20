@@ -70,7 +70,7 @@ class CursorAdapter:
         if not self._use_gateway():
             raise ConfigError(
                 "Cursor SDK does not provide embeddings. Set EMBEDDING_PROVIDER="
-                "openai|gemini|fake (recommended) when LLM_PROVIDER=cursor."
+                "openai|gemini|ollama|fake (recommended) when LLM_PROVIDER=cursor."
             )
         api_key = self._api_key()
         base_url = (os.getenv("CURSOR_LLM_BASE_URL") or "").strip().rstrip("/")

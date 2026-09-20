@@ -24,7 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--embeddings",
         default=None,
-        help="Embedding provider override (openai|gemini|cursor|fake). Default: EMBEDDING_PROVIDER / LLM_PROVIDER",
+        help="Embedding provider override (openai|gemini|cursor|ollama|fake). Default: EMBEDDING_PROVIDER / LLM_PROVIDER",
     )
     parser.add_argument("--chunk-size", type=int, default=800)
     parser.add_argument("--chunk-overlap", type=int, default=120)

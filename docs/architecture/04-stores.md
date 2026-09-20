@@ -56,7 +56,8 @@ Agents must cite `title` + `url` from retrieved chroma hits. Never invent destin
 | Provider | Env | Notes |
 |----------|-----|-------|
 | `openai` | `OPENAI_API_KEY`, `OPENAI_EMBEDDING_MODEL` | Default production |
-| `gemini` | `GOOGLE_API_KEY` | Optional |
+| `gemini` | `GOOGLE_API_KEY`, `GEMINI_EMBEDDING_MODEL` | Optional |
+| `ollama` | `OLLAMA_BASE_URL`, `OLLAMA_EMBEDDING_MODEL` | Local (`nomic-embed-text`) |
 | `cursor` | `CursorAdapter` — `CURSOR_API_KEY` + `CURSOR_LLM_BASE_URL` | OpenAI-compatible gateway |
 | `fake` | — | Lexical hash vectors for offline smoke/tests |
 

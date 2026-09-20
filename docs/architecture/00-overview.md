@@ -43,7 +43,7 @@ See [`DECISIONS.md`](../../DECISIONS.md) and [`.env.example`](../../.env.example
 
 ### LLM toggle
 
-`LLM_PROVIDER=openai|gemini|cursor|fake` plus Streamlit sidebar override. Factory: `src/llm/factory.py` delegates to `LLMProviderAdapter` implementations under `src/llm/adapters/` (switch via registry). No silent fallback if the selected provider’s key is missing.
+`LLM_PROVIDER=openai|gemini|cursor|ollama|fake` plus Streamlit sidebar override. Factory: `src/llm/factory.py` delegates to `LLMProviderAdapter` implementations under `src/llm/adapters/` (switch via registry). No silent fallback if the selected provider’s key is missing.
 
 ### Observability
 

@@ -87,7 +87,7 @@ def main() -> None:
         st.header("Settings")
         providers = list(list_providers())
         # Put common ones first
-        order = ["openai", "gemini", "cursor", "fake"]
+        order = ["openai", "gemini", "cursor", "ollama", "fake"]
         providers = [p for p in order if p in providers] + [
             p for p in providers if p not in order
         ]

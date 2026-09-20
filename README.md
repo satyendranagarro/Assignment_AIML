@@ -92,7 +92,7 @@ Profiles: `pipeline` (kb job) · `mcp` (weather/currency) · `app` (Streamlit).
 
 ## LLM toggle
 
-`LLM_PROVIDER=openai|gemini|cursor|fake` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
+`LLM_PROVIDER=openai|gemini|cursor|ollama|fake` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
 
 ## Out of scope
 

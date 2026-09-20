@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from typing import Any, Literal, Protocol, runtime_checkable
 
-ProviderName = Literal["openai", "gemini", "cursor", "fake"]
+ProviderName = Literal["openai", "gemini", "cursor", "ollama", "fake"]
 
-VALID_PROVIDERS: frozenset[str] = frozenset({"openai", "gemini", "cursor", "fake"})
+VALID_PROVIDERS: frozenset[str] = frozenset(
+    {"openai", "gemini", "cursor", "ollama", "fake"}
+)
 
 
 class ConfigError(RuntimeError):

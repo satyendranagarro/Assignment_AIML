@@ -45,10 +45,10 @@ Optional umbrella includes knowledge units. Secrets never committed. Agents use 
 ## LLM provider key style
 
 - **Pattern:** `LLMProviderAdapter` contract (`src/llm/contract.py`) + adapters (`src/llm/adapters/`) + factory registry switch (`get_adapter` / `get_chat_model` / `get_embeddings`)
-- **Toggle:** `LLM_PROVIDER=openai|gemini|cursor|fake` (Streamlit sidebar overrides per session)
+- **Toggle:** `LLM_PROVIDER=openai|gemini|cursor|ollama|fake` (Streamlit sidebar overrides per session)
 - **OpenAI:** `OPENAI_API_KEY`, optional `OPENAI_MODEL` (default `gpt-4o-mini`)
 - **Gemini:** `GOOGLE_API_KEY`, optional `GEMINI_MODEL` (default `gemini-2.0-flash`)
-- **Cursor:** `CursorAdapter` — online via `cursor-sdk` (`CURSOR_API_KEY`, `CURSOR_MODEL`, `CURSOR_RUNTIME=cloud|local`). Optional gateway: `CURSOR_USE_GATEWAY=true` + `CURSOR_LLM_BASE_URL`. Prefer `EMBEDDING_PROVIDER=openai|fake` for RAG.
+- **Cursor:** `CursorAdapter` — online via `cursor-sdk` (`CURSOR_API_KEY`, `CURSOR_MODEL`, `CURSOR_RUNTIME=cloud|local`). Optional gateway: `CURSOR_USE_GATEWAY=true` + `CURSOR_LLM_BASE_URL`. Prefer `EMBEDDING_PROVIDER=ollama|openai|fake` for RAG.
 - **Embeddings override:** optional `EMBEDDING_PROVIDER` (same enum); re-index Chroma if changed
 - **Logging:** `LOG_LEVEL`, `LOG_FORMAT=json|text`, optional `LOG_FILE=logs/app.jsonl`
 - Missing key for selected provider → config error; **no silent fallback**
