@@ -6,7 +6,7 @@ Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Re
 
 ## Status
 
-**Phase 1.5 knowledge IaC done.** Next: Phase 5 agents + MCP + UI (reuse Neo4j/Chroma). See [`DECISIONS.md`](DECISIONS.md).
+**Phase 5 agents done.** Next: Phase 6 deliverables + MCP/app Compose. See [`DECISIONS.md`](DECISIONS.md).
 
 | Phase | Status |
 |-------|--------|
@@ -16,7 +16,7 @@ Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Re
 | 2 Crawl | done |
 | 3 Ontology | done |
 | 4 Load KB into infra | done |
-| 5 Agents + MCP + UI | pending |
+| 5 Agents + MCP + UI | done |
 | 6 Deliverables + runtime IaC | pending |
 
 ## Architecture
@@ -39,15 +39,20 @@ LangChain · OpenAI / Gemini / Cursor · Chroma · Neo4j · Streamlit · MCP (we
 
 ## Setup
 
+Requires **Python 3.10+** (3.12 recommended; `mcp` package).
+
 1. Copy `.env.example` → `.env` and set keys (`NEO4J_PASSWORD=changeme` for local Compose)  
-2. `pip install -r requirements.txt`  
+2. `python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`  
 3. Start knowledge infra: `docker compose -f infra/compose.yml up -d`  
 4. Optional live Chroma server: `export CHROMA_HOST=localhost CHROMA_PORT=8000` (omit for local `data/chroma/`)  
 5. `python scripts/crawl.py --force-manual --update-matrix`  
 6. `python scripts/build_ontology.py`  
 7. `python scripts/build_kb.py --embeddings fake --gate`  
 8. `python scripts/load_neo4j.py --require-neo4j` (or `--memory` offline)  
-9. Follow phase docs under `docs/architecture/`
+9. Agents UI: `export LLM_PROVIDER=fake EMBEDDING_PROVIDER=fake MCP_MOCK_MODE=true && streamlit run app/streamlit_app.py`  
+10. Use cases: `pytest tests/test_phase5_agents.py tests/use_cases/ -q`  
+
+Phase 5 architecture: [`docs/architecture/05-agents.md`](docs/architecture/05-agents.md)
 
 ## Out of scope
 

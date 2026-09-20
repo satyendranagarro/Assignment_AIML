@@ -59,7 +59,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **5 — Agents** |
+| Active phase | **6 — Deliverables + runtime IaC** |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -72,7 +72,7 @@ See `.env.example`.
 | 2 Crawl | **done** | Allowlisted BFS crawl (`src/crawl/`, `scripts/crawl.py`): `max_depth=null` (unbounded) + `max_pages=100` per source; Visit Singapore stored as educational excerpts. Live Wikivoyage often HTTP 403 and Visit Singapore thin SPA → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
 | 3 Ontology | **done** | Taxonomy + schema + gazetteer; `ontology/entities.json` has 37 entities, 20 spot-checked with evidence; all 5 classes covered. **Decision:** dense typed graph → Phase 4 hybrid (Chroma + Neo4j GraphRAG). |
 | 4 Stores | **done (offline + live-ready)** | Chroma KB + HybridRetriever; Neo4j loader with in-memory fallback; offline smoke with `--embeddings fake`. Live path: Phase 1.5 Compose + `CHROMA_HOST` + `load_neo4j.py --require-neo4j`. **Decision:** keep **hybrid** for Phase 5 A1/A4. |
-| 5 Agents | pending | Consume Phase 1.5 KB infra (same as Phase 4 load). |
+| 5 Agents | **done** | A0–A4 + MCP weather/currency (Open-Meteo / Frankfurter + mock) + Streamlit UI; hybrid RAG reused from Phase 4; use-case suite under `tests/use_cases/`. **Decision:** MCP Compose + README polish in Phase 6; keep hybrid retrieval. |
 | 6 Deliverables + runtime IaC | pending | MCP/app/umbrella + acceptance. Knowledge IaC is Phase 1.5. |
 
 ## Retrieval mode (set after Phase 3–4)

@@ -134,5 +134,6 @@ LLM providers stay `.env` only. Details: [`01b-knowledge-infra.md`](01b-knowledg
 - **Phase 1.5 — Complete.** Knowledge Compose units; see [`01b-knowledge-infra.md`](01b-knowledge-infra.md) and [`infra/README.md`](../../infra/README.md).
 - **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md): allowlisted crawl, manual fallbacks, topic buckets green.
 - **Phase 3 — Complete.** See [`03-ontology.md`](03-ontology.md): taxonomy, gazetteer extract, ≥20 spot-checked entities.
-- **Phase 4 — Complete.** Load path + HybridRetriever; live via Phase 1.5 or offline `--memory` / local Chroma. See [`04-stores.md`](04-stores.md). Next: Phase 5 agents (`05-agents.md`).
+- **Phase 4 — Complete.** Load path + HybridRetriever; live via Phase 1.5 or offline `--memory` / local Chroma. See [`04-stores.md`](04-stores.md).
+- **Phase 5 — Complete.** Agents A0–A4, MCP weather/currency, Streamlit UI, use-case suite. See [`05-agents.md`](05-agents.md). Next: Phase 6 deliverables + MCP/app IaC.
 - **Phase 6 — Planned.** Deliverables + MCP/app umbrella; knowledge IaC is Phase 1.5.
