@@ -35,6 +35,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# data/manual/ is committed (ToS / offline fallback packs)
 
 # Keep empty dirs
 !data/chroma/.gitkeep

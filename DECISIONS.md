@@ -32,7 +32,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **2 — Crawl** |
+| Active phase | **3 — Ontology** |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -41,7 +41,7 @@ See `.env.example`.
 |-------|--------|-----------------------------------|
 | 0 Skill + scaffold | **done** | Skill, dirs, overview, USE_CASES, `.env.example`, `requirements.txt`, `.gitignore` present. Proceed to Phase 1. |
 | 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. |
-| 2 Crawl | pending | — |
+| 2 Crawl | **done** | Allowlisted seed crawl (`src/crawl/`, `scripts/crawl.py`). Live Wikivoyage returns HTTP 403 and Visit Singapore returns thin SPA HTML from this environment → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
 | 3 Ontology | pending | — |
 | 4 Stores | pending | — |
 | 5 Agents | pending | — |
@@ -59,3 +59,4 @@ See `.env.example`.
 - Assignment brief: `Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`
 - Project skill: `.cursor/skills/travel-assistant-pipeline/SKILL.md`
 - Architecture overview: `docs/architecture/00-overview.md`
+- Phase 2 crawl note: Wikimedia often returns HTTP 403 for `robots.txt` to some clients; crawler treats missing/forbidden robots as allow (urllib-compatible) and still uses `data/manual/` when page fetch fails.

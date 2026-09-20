@@ -1,0 +1,7 @@
+{
+  "title": "Visit Singapore — Top Things to Do",
+  "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+  "topics": ["attractions", "indoor_outdoor", "family", "culture", "food"],
+  "fetch_mode": "manual",
+  "notes": "Educational category excerpt; not a full mirror of Visit Singapore."
+}

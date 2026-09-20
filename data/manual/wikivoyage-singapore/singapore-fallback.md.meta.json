@@ -1,0 +1,7 @@
+{
+  "title": "Singapore – Travel guide at Wikivoyage",
+  "url": "https://en.wikivoyage.org/wiki/Singapore",
+  "topics": ["districts", "attractions", "transport", "food", "practical", "itineraries", "indoor_outdoor"],
+  "fetch_mode": "manual",
+  "notes": "CC BY-SA 4.0 educational fallback; prefer live crawl when network allows."
+}

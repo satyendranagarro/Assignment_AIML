@@ -34,6 +34,8 @@ sources:
     seed_urls:
       - "https://en.wikivoyage.org/wiki/Singapore"
       - "https://en.wikivoyage.org/wiki/Three_days_in_Singapore"
+      - "https://en.wikivoyage.org/wiki/Singapore/Chinatown"
+      - "https://en.wikivoyage.org/wiki/Singapore/Little_India"
     allowlist_hosts:
       - en.wikivoyage.org
     citation:
