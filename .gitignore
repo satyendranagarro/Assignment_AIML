@@ -1,1 +1,51 @@
+# Secrets / local env
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.envrc
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Knowledge-base artifacts (rebuild from pipeline)
+data/chroma/
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Keep empty dirs
+!data/chroma/.gitkeep
+
+# Neo4j local dumps / logs (if any)
+*.dump
+neo4j/data/
+neo4j/logs/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# graphify generated (local rebuild)
 graphify-out/
