@@ -56,9 +56,31 @@ data/sources.yaml, raw/, processed/, chroma/, coverage_matrix.yaml
 ontology/taxonomy.yaml, schema.json, entities.json
 scripts/ingest.py, crawl.py, normalize.py, build_kb.py, load_neo4j.py, eval_retrieval.py
 mcp_servers/weather/, currency/
+infra/neo4j/, chroma/, kb-pipeline/   # Phase 1.5 knowledge IaC (planned)
+infra/mcp-weather/, mcp-currency/, app/  # Phase 5–6 runtime IaC (planned)
 src/llm/, observability/, rag/, graph/, agents/, prompts/
 app/streamlit_app.py
 logs/   # gitignored
 tests/use_cases/
-docs/architecture/00–06, USE_CASES.md
+docs/architecture/00–06 (+ 01b), USE_CASES.md
 ```
+
+## IaC units
+
+**Phase 1.5 (knowledge — load + agents share these):**
+
+| Path | Service |
+|------|---------|
+| `infra/neo4j/` | Neo4j graph store |
+| `infra/chroma/` | Chroma vector store |
+| `infra/kb-pipeline/` | Optional DE → load job |
+
+**Phase 5–6 (runtime):**
+
+| Path | Service |
+|------|---------|
+| `infra/mcp-weather/` | Weather MCP server |
+| `infra/mcp-currency/` | Currency MCP server |
+| `infra/app/` | Optional Streamlit container |
+
+See [`01b-knowledge-infra.md`](../../../docs/architecture/01b-knowledge-infra.md) and [`06-ops-and-acceptance.md`](../../../docs/architecture/06-ops-and-acceptance.md).

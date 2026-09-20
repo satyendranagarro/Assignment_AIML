@@ -20,8 +20,10 @@ User → Streamlit UI → OrchestratorAgent (A0)
                          └─ CombinedPlannerAgent (A4) → A1 + A2/A3
 
 KB build (Phases 1–4):
-  sources.yaml → crawl/normalize → ontology/taxonomy → chunk/embed → Chroma
-                                                       entity graph → Neo4j
+  sources.yaml → [Phase 1.5: infra/neo4j + infra/chroma]
+       → crawl/normalize → ontology → chunk/embed → Chroma (infra)
+                                           entity graph → Neo4j (infra)
+  Phase 5 agents → same Chroma + Neo4j
 ```
 
 ## Stack A (locked)
@@ -31,8 +33,8 @@ KB build (Phases 1–4):
 | Orchestration | LangChain |
 | LLM (toggle) | OpenAI · Gemini · Cursor (OpenAI-compatible) |
 | Embeddings | Via `EMBEDDING_PROVIDER` (default = chat provider) |
-| Vector DB | Chroma |
-| Graph DB | Neo4j |
+| Vector DB | Chroma (via Phase 1.5 `infra/chroma/`) |
+| Graph DB | Neo4j (via Phase 1.5 `infra/neo4j/`) |
 | UI | Streamlit (sidebar LLM toggle) |
 | Tools | MCP weather, MCP currency |
 | Observability | Generic JSON structured logs |
@@ -53,11 +55,12 @@ See [`DECISIONS.md`](../../DECISIONS.md) and [`.env.example`](../../.env.example
 |-------|-------------|------|
 | 0 | Skill, scaffold, this overview, USE_CASES skeleton | Present before Phase 1 |
 | 1 | Ingest/normalize + coverage matrix | ≥3 sources with citations metadata |
+| **1.5** | **Knowledge IaC** (`infra/neo4j`, `infra/chroma`) | Stores healthy; env contract documented |
 | 2 | Allowlisted crawl | Topic coverage green |
 | 3 | Ontology + taxonomy | Validated entities |
-| 4 | Chroma + Neo4j + retriever | Retrieval smoke tests |
-| 5 | Agents + MCP + UI + UC runs | Use-case pass bar |
-| 6 | README, samples, demo, ops doc | Assignment deliverables 15–20 |
+| 4 | Load KB **into** Phase 1.5 infra + retriever | Live retrieval smoke (offline fallback OK for CI) |
+| 5 | Agents + MCP + UI + UC runs (**same** KB infra) | Use-case pass bar |
+| 6 | README, samples, demo, MCP/app IaC + umbrella | Assignment deliverables 15–20 |
 
 Decision tables that choose the *shape* of the next phase live in the project skill and in each phase architecture doc.
 
@@ -97,16 +100,39 @@ Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md).
 | Doc | Phase |
 |-----|-------|
 | `01-data-pipeline.md` | 1 |
+| `01b-knowledge-infra.md` | **1.5** knowledge store IaC |
 | `02-crawl.md` | 2 |
 | `03-ontology.md` | 3 |
-| `04-stores.md` | 4 |
+| `04-stores.md` | 4 (load into 1.5 infra) |
 | `05-agents.md` | 5 |
-| `06-ops-and-acceptance.md` | 6 |
+| `06-ops-and-acceptance.md` | 6 (deliverables + MCP/app IaC) |
+
+## Local infrastructure
+
+**Knowledge (Phase 1.5)** — required for live pipeline/agent tests:
+
+| Unit | Service |
+|------|---------|
+| `infra/neo4j/` | Graph DB (`NEO4J_*`) |
+| `infra/chroma/` | Vector DB + volume |
+| `infra/kb-pipeline/` (optional) | DE → load job |
+
+**Runtime (Phase 5–6):**
+
+| Unit | Service |
+|------|---------|
+| `infra/mcp-weather/` | Weather MCP |
+| `infra/mcp-currency/` | Currency MCP |
+| `infra/app/` (optional) | Streamlit UI |
+
+LLM providers stay `.env` only. Details: [`01b-knowledge-infra.md`](01b-knowledge-infra.md), [`06-ops-and-acceptance.md`](06-ops-and-acceptance.md).
 
 ## Phase status
 
 - **Phase 0 — Complete.** Skill, scaffold, this overview, USE_CASES, README, DECISIONS, `.env.example`, `requirements.txt`, `.gitignore`.
 - **Phase 1 — Complete.** See [`01-data-pipeline.md`](01-data-pipeline.md): `data/sources.yaml` (≥3 sources), `data/coverage_matrix.yaml`, `scripts/ingest.py` / `normalize.py`, `src/data/`.
+- **Phase 1.5 — Planned.** Knowledge Compose units; see [`01b-knowledge-infra.md`](01b-knowledge-infra.md). Backfill before live store / agent demos.
 - **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md): allowlisted crawl, manual fallbacks, topic buckets green.
 - **Phase 3 — Complete.** See [`03-ontology.md`](03-ontology.md): taxonomy, gazetteer extract, ≥20 spot-checked entities.
-- **Phase 4 — Complete.** See [`04-stores.md`](04-stores.md): Chroma + hybrid GraphRAG, retrieval smoke. Next: Phase 5 agents (`05-agents.md`).
+- **Phase 4 — Complete (offline path).** Client loaders + HybridRetriever; live-into-infra path depends on Phase 1.5. See [`04-stores.md`](04-stores.md). Next: Phase 5 agents + Phase 1.5 backfill as needed.
+- **Phase 6 — Planned.** Deliverables + MCP/app umbrella; knowledge IaC is Phase 1.5.

@@ -9,12 +9,37 @@ Track phase status, gate outcomes, and stack choices. Update at every phase exit
 | Orchestration | LangChain |
 | LLM (toggle) | `openai` \| `gemini` \| `cursor` via `LLM_PROVIDER` + Streamlit sidebar |
 | Embeddings | `EMBEDDING_PROVIDER` (default = chat provider) |
-| Vector store | Chroma (`data/chroma/`) |
-| Graph store | Neo4j |
+| Vector store | Chroma (Phase 1.5 `infra/chroma/` + Phase 4 load) |
+| Graph store | Neo4j (Phase 1.5 `infra/neo4j/` + Phase 4 load) |
 | UI | Streamlit |
 | MCP | Weather + Currency |
 | Observability | Generic JSON logs (`src/observability`, `LOG_*` env) |
 | Destination | Singapore |
+| Knowledge IaC | **Phase 1.5** — Docker Compose per store under `infra/` (planned) |
+| Runtime IaC | **Phase 5–6** — MCP + optional app + umbrella |
+
+## Infrastructure as code (planned)
+
+Composable units; start only what you need. Knowledge early so DE load + agent tests share one stack.
+
+**Knowledge (Phase 1.5)** — [`docs/architecture/01b-knowledge-infra.md`](docs/architecture/01b-knowledge-infra.md):
+
+| Service | Unit | Status |
+|---------|------|--------|
+| Neo4j | `infra/neo4j/` | planned |
+| Chroma | `infra/chroma/` | planned |
+| KB pipeline job | `infra/kb-pipeline/` | planned (optional) |
+
+**Runtime (Phase 5–6)** — [`docs/architecture/06-ops-and-acceptance.md`](docs/architecture/06-ops-and-acceptance.md):
+
+| Service | Unit | Status |
+|---------|------|--------|
+| MCP weather | `infra/mcp-weather/` | planned (after Phase 5 servers) |
+| MCP currency | `infra/mcp-currency/` | planned (after Phase 5 servers) |
+| Streamlit app | `infra/app/` or documented CLI | planned |
+| LLM APIs | `.env` only | n/a |
+
+Optional umbrella `infra/compose.yml` may `include` units. Secrets never committed. Agents use the **same** Neo4j/Chroma as Phase 4 load.
 
 ## LLM provider key style
 
@@ -32,7 +57,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **5 — Agents** |
+| Active phase | **5 — Agents** (backfill **1.5 Knowledge IaC** before live KB demos) |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -40,12 +65,13 @@ See `.env.example`.
 | Phase | Status | Outcome / decision for next phase |
 |-------|--------|-----------------------------------|
 | 0 Skill + scaffold | **done** | Skill, dirs, overview, USE_CASES, `.env.example`, `requirements.txt`, `.gitignore` present. Proceed to Phase 1. |
-| 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. |
+| 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. Infra contract for load target documented in Phase 1.5. |
+| 1.5 Knowledge IaC | **pending** | Plan: Compose `infra/neo4j/` + `infra/chroma/` (+ optional `kb-pipeline`) before live load/agent tests. See `01b-knowledge-infra.md`. |
 | 2 Crawl | **done** | Allowlisted BFS crawl (`src/crawl/`, `scripts/crawl.py`): `max_depth=null` (unbounded) + `max_pages=100` per source; Visit Singapore stored as educational excerpts. Live Wikivoyage often HTTP 403 and Visit Singapore thin SPA → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
 | 3 Ontology | **done** | Taxonomy + schema + gazetteer; `ontology/entities.json` has 37 entities, 20 spot-checked with evidence; all 5 classes covered. **Decision:** dense typed graph → Phase 4 hybrid (Chroma + Neo4j GraphRAG). |
-| 4 Stores | **done** | Chroma KB + HybridRetriever; Neo4j loader with in-memory fallback; retrieval smoke + graph checks pass offline (`--embeddings fake`). **Decision:** graph expansions useful → keep **hybrid** for Phase 5 A1/A4. |
-| 5 Agents | pending | — |
-| 6 Deliverables | pending | — |
+| 4 Stores | **done (offline)** | Chroma KB + HybridRetriever; Neo4j loader with in-memory fallback; retrieval smoke + graph checks pass offline (`--embeddings fake`). **Live path:** load into Phase 1.5 infra; agents reuse same stack. **Decision:** graph expansions useful → keep **hybrid** for Phase 5 A1/A4. |
+| 5 Agents | pending | Consume Phase 1.5 KB infra (same as Phase 4 load). |
+| 6 Deliverables + runtime IaC | pending | MCP/app/umbrella + acceptance. Knowledge IaC is Phase 1.5. |
 
 ## Retrieval mode (set after Phase 3–4)
 
@@ -62,3 +88,4 @@ See `.env.example`.
 - Phase 2 crawl note: Wikimedia often returns HTTP 403 for `robots.txt` to some clients; crawler treats missing/forbidden robots as allow (urllib-compatible) and still uses `data/manual/` when page fetch fails.
 - Phase 2 spider upgrade: unbounded BFS (`max_depth: null`) capped by `max_pages: 100` per source; ARR Visit Singapore pages remain Markdown excerpts (not full HTML mirrors).
 - Phase 2 Singapore scope: Wikivoyage BFS limited via `url_path_prefixes` / `url_path_contains` so crawl stays on Singapore pages, not the whole wiki.
+- IaC split: knowledge stores = Phase 1.5 (`01b-knowledge-infra.md`); MCP/app/umbrella = Phase 6 (`06-ops-and-acceptance.md`).

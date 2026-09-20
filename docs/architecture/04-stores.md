@@ -1,8 +1,12 @@
-# Architecture — Phase 4: Chroma + Neo4j stores
+# Architecture — Phase 4: Load KB into knowledge infra
 
 ## Purpose
 
-Index normalized Singapore KB text into **Chroma** (vector) and load the Phase 3 ontology into **Neo4j** (or in-memory graph for offline smoke), then expose a **HybridRetriever** for Phase 5 agents.
+Index normalized Singapore KB text into **Chroma** and load the Phase 3 ontology into **Neo4j**, then expose a **HybridRetriever** for Phase 5 agents.
+
+**Happy path:** Phase **1.5** infra (`infra/chroma/`, `infra/neo4j/`) is already up; this phase **loads** into those stores. Agents later use the **same** endpoints/volumes.
+
+**Offline / CI fallback:** host-local `data/chroma/`, `--embeddings fake`, and `InMemoryGraphStore` (`--memory`) when Docker is unavailable.
 
 Phase 3 decision: dense typed entities + relations → **hybrid** (Chroma primary + graph expansion).
 
@@ -12,7 +16,8 @@ Phase 3 decision: dense typed entities + relations → **hybrid** (Chroma primar
 |----------|------|------|
 | Processed docs | `data/processed/**/*.json` | Chunk + embed source |
 | Entities | `ontology/entities.json` | Graph nodes/edges + chunk entity tags |
-| Chroma | `data/chroma/` | Persistent vector collection `singapore_kb` |
+| Knowledge IaC | `infra/chroma/`, `infra/neo4j/` | Phase 1.5 — load targets |
+| Chroma data | volume / `data/chroma/` | Persistent collection `singapore_kb` |
 | Graph | Neo4j (`NEO4J_*`) or in-memory | Entity / relation expansion |
 | Library | `src/rag/`, `src/graph/`, `src/llm/`, `src/observability/` | Build + retrieve + logging |
 | CLIs | `scripts/build_kb.py`, `load_neo4j.py`, `eval_retrieval.py` | Index, load, smoke |
@@ -20,6 +25,8 @@ Phase 3 decision: dense typed entities + relations → **hybrid** (Chroma primar
 ## Pipeline
 
 ```text
+Phase 1.5: infra/chroma + infra/neo4j (up)
+        │
 data/processed/*.json
         │
         ▼
@@ -29,11 +36,13 @@ data/processed/*.json
    embed via src/llm/factory.get_embeddings()
         │
         ▼
-   Chroma (data/chroma/)
+   Chroma (infra/chroma or data/chroma/)
         │
-ontology/entities.json ──► Neo4j KBEntity/REL  (or InMemoryGraphStore)
+ontology/entities.json ──► Neo4j (infra/neo4j)  [or InMemoryGraphStore offline]
         │
         └─ HybridRetriever: similarity_search + name/alias graph expand
+              ▲
+Phase 5 agents consume the same stores
 ```
 
 ### Chunk contract
@@ -59,7 +68,7 @@ Agents must cite `title` + `url` from retrieved chroma hits. Never invent destin
 - Edges: `REL {type}` (`located_in`, `nearby`, `part_of_itinerary`, …)
 - Evidence: `KBDoc` via `EVIDENCED_IN`
 
-If `NEO4J_PASSWORD` is unset or Neo4j is down, `open_graph_store()` uses **InMemoryGraphStore** so local smoke still passes. Use `scripts/load_neo4j.py --require-neo4j` for a hard check.
+If `NEO4J_PASSWORD` is unset or Neo4j is down, `open_graph_store()` uses **InMemoryGraphStore** so local smoke still passes. Use `scripts/load_neo4j.py --require-neo4j` for the **live infra** gate (Phase 1.5 must be up).
 
 ### Observability
 
@@ -68,22 +77,25 @@ If `NEO4J_PASSWORD` is unset or Neo4j is down, `open_graph_store()` uses **InMem
 ## How to run
 
 ```bash
+# Phase 1.5 knowledge infra (when implemented)
+docker compose -f infra/neo4j/compose.yml up -d
+docker compose -f infra/chroma/compose.yml up -d
+
 # Ensure processed docs + ontology exist
 python scripts/crawl.py --force-manual
 python scripts/normalize.py
 python scripts/build_ontology.py
 
-# Offline smoke (no API key / no Neo4j)
+# Live path (preferred for demos / agent prep)
+export NEO4J_PASSWORD=...
+python scripts/build_kb.py --embeddings openai   # or fake against chroma volume
+python scripts/load_neo4j.py --require-neo4j
+python scripts/eval_retrieval.py --embeddings openai --gate
+
+# Offline smoke (no Docker / no API key)
 python scripts/build_kb.py --embeddings fake --gate
 python scripts/load_neo4j.py --memory
 python scripts/eval_retrieval.py --embeddings fake --gate
-
-# Production-ish (OpenAI embeddings + Neo4j)
-export OPENAI_API_KEY=...
-export NEO4J_PASSWORD=...
-python scripts/build_kb.py --embeddings openai
-python scripts/load_neo4j.py --require-neo4j
-python scripts/eval_retrieval.py --embeddings openai
 
 pytest tests/test_phase4_stores.py -q
 ```
@@ -96,6 +108,7 @@ pytest tests/test_phase4_stores.py -q
 - [x] HybridRetriever merges vector + graph hits
 - [x] LLM/embedding factory + structured retrieve logs wired
 - [x] Tests cover chunk, build, graph expand, gate, CLI
+- [ ] **Live infra path:** Phase 1.5 up; `load_neo4j.py --require-neo4j` + retrieval against Compose Chroma/Neo4j (backfill with 1.5)
 
 ### Decision table (Phase 4 → 5)
 
@@ -104,7 +117,8 @@ pytest tests/test_phase4_stores.py -q
 | Graph expansions add useful neighbors | Keep **hybrid** retrieval in A1/A4 |
 | Graph noisy / weak name match | Chroma-only retrieve; keep graph for display |
 | Bad chunks / weak overlap | Retune `chunk_size` / overlap; rebuild before agents |
+| Live stores loaded | Agents use **same** `NEO4J_*` / Chroma as this phase |
 
 ## Phase 4 status
 
-**Complete** when `python scripts/build_kb.py --embeddings fake --gate` exits 0 and `DECISIONS.md` records hybrid mode. Next: Phase 5 agents + MCP + UI (`05-agents.md`).
+**Complete for offline/client path** (`--embeddings fake` / `--memory`). **Live load-into-infra** depends on Phase 1.5 ([`01b-knowledge-infra.md`](01b-knowledge-infra.md)). Next: Phase 5 agents on the same stack (`05-agents.md`).

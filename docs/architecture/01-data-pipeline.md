@@ -50,6 +50,8 @@ scripts/normalize.py → data/processed/<source_id>/<doc_id>.json
          (title/url = citation metadata for Phase 4–5 answers)
 ```
 
+**Downstream (planned infra):** Phase **1.5** stands up `infra/neo4j/` + `infra/chroma/`. Phases 2–3 fill volumes; Phase 4 **loads** processed docs + ontology **into that infra**; Phase 5 agents **read the same stores**. Unit tests for Phase 1 stay file-only; live KB tests need 1.5 up.
+
 ### Normalized document contract
 
 ```json
@@ -91,6 +93,8 @@ pytest tests/test_phase1_data.py -q
 | Thin coverage | Add allowlisted seeds; re-run normalize |
 | Full coverage | Light refresh crawl only |
 
+**Next infra:** implement Phase **1.5** knowledge Compose ([`01b-knowledge-infra.md`](01b-knowledge-infra.md)) so Phase 4 can load into real Neo4j/Chroma and Phase 5 agents reuse them. File-based Phase 1–2 work does not require Docker.
+
 ## Phase 1 status
 
-**Complete** for engineering gate (registry + matrix + tools). Content acquisition is Phase 2 (`02-crawl.md`).
+**Complete** for engineering gate (registry + matrix + tools). Content acquisition is Phase 2 (`02-crawl.md`). Knowledge store IaC is Phase 1.5 (`01b-knowledge-infra.md`).
