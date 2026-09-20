@@ -1,0 +1,39 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#E8F1F8", "primaryTextColor": "#1a2332", "primaryBorderColor": "#3D6B8C", "lineColor": "#4A5568", "secondaryColor": "#F0F7F0", "tertiaryColor": "#FFF8E8", "fontFamily": "Inter, Helvetica, Arial, sans-serif", "fontSize": "14px"}}}%%
+flowchart TD
+  Start([User asks a question]) --> UI[Streamlit UI]
+  UI --> A0[Orchestrator Agent]
+  A0 --> Classify[Classify Intent]
+  Classify --> Route{Intent}
+
+  Route -->|rag_only| A1[RAG Knowledge Agent]
+  Route -->|weather_only| A2[Weather Tool Agent]
+  Route -->|currency_only| A3[Currency Tool Agent]
+  Route -->|combined_itinerary / combined_budget| A4[Combined Planner Agent]
+  Route -->|clarify / out_of_scope| Clarify[Labeled clarify or out-of-scope reply]
+
+  A1 --> Retrieve[Hybrid Retriever]
+  Retrieve --> KB[(Chroma + Neo4j)]
+  KB --> Ground[Grounded answer via LLM Factory]
+  Ground --> Labels1["Labeled blocks: KB fact + citations"]
+
+  A2 --> Wx[Weather MCP Client]
+  Wx --> WxAPI[Open-Meteo]
+  WxAPI --> WxOut["Labeled blocks: MCP data"]
+
+  A3 --> Fx[Currency MCP Client]
+  Fx --> FxAPI[Frankfurter]
+  FxAPI --> FxOut["Labeled blocks: MCP data"]
+
+  A4 --> A4RAG[Retrieve KB facts]
+  A4 --> A4MCP[Call Weather and/or Currency MCP]
+  A4RAG --> Plan[Day-wise plan via LLM Factory]
+  A4MCP --> Plan
+  Plan --> Labels4["Labeled blocks: KB fact + MCP data + LLM suggestion"]
+
+  Labels1 --> Resp[Agent Response]
+  WxOut --> Resp
+  FxOut --> Resp
+  Labels4 --> Resp
+  Clarify --> Resp
+  Resp --> UI2[Streamlit renders labeled answer]
+  UI2 --> End([User sees response])

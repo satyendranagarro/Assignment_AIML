@@ -12,6 +12,11 @@ Source of truth for product requirements: [`Requirement/AI_Travel_Planning_Assis
 
 ## System context
 
+Logical component diagrams (no phase labels):
+
+- [Architecture diagram](diagrams/architecture.png) — components and stores
+- [Request flow diagram](diagrams/flow.png) — intent routing and answer path
+
 ### Runtime (query path)
 
 ```mermaid

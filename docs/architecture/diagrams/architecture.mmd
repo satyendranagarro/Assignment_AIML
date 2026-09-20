@@ -1,0 +1,82 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#E8F1F8", "primaryTextColor": "#1a2332", "primaryBorderColor": "#3D6B8C", "lineColor": "#4A5568", "secondaryColor": "#F0F7F0", "tertiaryColor": "#FFF8E8", "fontFamily": "Inter, Helvetica, Arial, sans-serif", "fontSize": "14px"}}}%%
+flowchart TB
+  subgraph Presentation["Presentation"]
+    User([User])
+    UI[Streamlit UI]
+  end
+
+  subgraph Orchestration["Orchestration"]
+    A0[Orchestrator Agent]
+    Router[Intent Router]
+    Session[Session State]
+  end
+
+  subgraph Agents["Specialist Agents"]
+    A1[RAG Knowledge Agent]
+    A2[Weather Tool Agent]
+    A3[Currency Tool Agent]
+    A4[Combined Planner Agent]
+  end
+
+  subgraph Retrieval["Knowledge Retrieval"]
+    HR[Hybrid Retriever]
+    Chroma[(Chroma Vector Store)]
+    Neo4j[(Neo4j Graph Store)]
+  end
+
+  subgraph MCP["Live Tools MCP"]
+    WxMCP[Weather Client]
+    FxMCP[Currency Client]
+    OpenMeteo[Open-Meteo API]
+    Frankfurter[Frankfurter API]
+  end
+
+  subgraph LLMLayer["LLM Layer"]
+    Factory[LLM Factory]
+    Providers[OpenAI / Gemini / Cursor / Ollama]
+  end
+
+  subgraph Pipeline["Knowledge Build Pipeline"]
+    Sources[Travel Sources]
+    Crawl[Crawl / Normalize]
+    Onto[Ontology / Taxonomy]
+    Chunk[Chunk + Embed]
+    Graph[Entity Graph]
+  end
+
+  Obs[Observability JSON Logs]
+
+  User --> UI
+  UI --> A0
+  A0 --> Router
+  A0 --> Session
+  Router -->|rag_only| A1
+  Router -->|weather_only| A2
+  Router -->|currency_only| A3
+  Router -->|combined| A4
+  A4 --> A1
+  A4 --> A2
+  A4 --> A3
+  A1 --> HR
+  HR --> Chroma
+  HR --> Neo4j
+  A2 --> WxMCP
+  A3 --> FxMCP
+  WxMCP --> OpenMeteo
+  FxMCP --> Frankfurter
+  A1 --> Factory
+  A2 --> Factory
+  A3 --> Factory
+  A4 --> Factory
+  Factory --> Providers
+  A0 --> Obs
+  A1 --> Obs
+  A2 --> Obs
+  A3 --> Obs
+  A4 --> Obs
+  Sources --> Crawl
+  Crawl --> Onto
+  Onto --> Chunk
+  Onto --> Graph
+  Chunk --> Chroma
+  Graph --> Neo4j
