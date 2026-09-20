@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 # Repo root on path for `src.*` / `mcp_servers.*`
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,7 @@ from dotenv import load_dotenv
 load_dotenv(ROOT / ".env", override=True)
 
 from src.agents import OrchestratorAgent, SessionState, build_retriever  # noqa: E402
+from src.agents.models import LABEL_PREFIX, LabeledBlock  # noqa: E402
 from src.llm.factory import (  # noqa: E402
     ConfigError,
     list_providers,
@@ -30,6 +32,13 @@ from mcp_servers.weather.client import WeatherClient  # noqa: E402
 
 
 st.set_page_config(page_title="Singapore Travel Assistant", page_icon="🇸🇬", layout="wide")
+
+_CHAT_KINDS = frozenset({"llm_suggestion", "error", "system"})
+_DETAIL_KINDS = frozenset({"kb_fact", "mcp_data"})
+_EXPANDER_TITLE = {
+    "kb_fact": "KB fact — sources & excerpts",
+    "mcp_data": "MCP data — live / tool result",
+}
 
 
 def _init_session() -> None:
@@ -87,11 +96,85 @@ def _get_orchestrator(provider: str) -> OrchestratorAgent:
     return orch
 
 
+def _blocks_from_payload(raw: list[dict[str, Any]] | None) -> list[LabeledBlock]:
+    if not raw:
+        return []
+    out: list[LabeledBlock] = []
+    for item in raw:
+        kind = item.get("kind")
+        text = (item.get("text") or "").strip()
+        if not kind or not text:
+            continue
+        out.append(
+            LabeledBlock(
+                kind=kind,  # type: ignore[arg-type]
+                text=text,
+                citations=list(item.get("citations") or []),
+                meta=dict(item.get("meta") or {}),
+            )
+        )
+    return out
+
+
+def _render_block_body(block: LabeledBlock) -> None:
+    """Chat-style body: prose + optional sources (no assignment label prefix)."""
+    st.markdown(block.text.strip())
+    if block.citations:
+        cite_lines = []
+        for c in block.citations:
+            title = c.get("title") or "source"
+            url = c.get("url") or ""
+            if url:
+                cite_lines.append(f"- [{title}]({url})")
+            else:
+                cite_lines.append(f"- {title}")
+        st.markdown("**Sources**\n" + "\n".join(cite_lines))
+
+
+def _render_assistant_message(
+    *,
+    content: str,
+    blocks: list[LabeledBlock] | None = None,
+    meta_caption: str | None = None,
+) -> None:
+    """
+    Chat-first layout:
+    - LLM / error / system → main bubble text
+    - KB fact / MCP data → collapsed expanders (closed by default)
+    When there is no chat-layer block, KB/MCP are shown as the chat reply
+    so weather/currency/RAG-only answers stay visible.
+    """
+    blocks = blocks or []
+    chat_blocks = [b for b in blocks if b.kind in _CHAT_KINDS]
+    detail_blocks = [b for b in blocks if b.kind in _DETAIL_KINDS]
+
+    if chat_blocks:
+        # Combined / planning: chat = LLM (and errors); KB / MCP in closed drawers.
+        for block in chat_blocks:
+            if block.kind == "error":
+                st.error(block.text.strip())
+            else:
+                _render_block_body(block)
+        for block in detail_blocks:
+            title = _EXPANDER_TITLE.get(block.kind, LABEL_PREFIX.get(block.kind, block.kind))
+            with st.expander(title, expanded=False):
+                _render_block_body(block)
+    elif detail_blocks:
+        # RAG / weather / FX only — the block *is* the chat reply (no LLM layer).
+        for block in detail_blocks:
+            _render_block_body(block)
+    else:
+        st.markdown(content)
+
+    if meta_caption:
+        st.caption(meta_caption)
+
+
 def main() -> None:
     _init_session()
 
     st.title("Singapore AI Travel Planning Assistant")
-    st.caption("RAG · MCP weather & currency · chat-style answers with KB / MCP / LLM labels")
+    st.caption("Chat-style replies · KB / MCP details in collapsed drawers · LLM provider toggle")
 
     with st.sidebar:
         st.header("Settings")
@@ -154,7 +237,14 @@ def main() -> None:
 
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+            if msg["role"] == "assistant":
+                _render_assistant_message(
+                    content=msg.get("content") or "",
+                    blocks=_blocks_from_payload(msg.get("blocks")),
+                    meta_caption=msg.get("meta_caption"),
+                )
+            else:
+                st.markdown(msg["content"])
 
     prompt = st.chat_input("Ask about Singapore travel, weather, or currency…")
     if not prompt:
@@ -163,6 +253,10 @@ def main() -> None:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    answer = ""
+    blocks_payload: list[dict[str, Any]] = []
+    meta_caption: str | None = None
 
     with st.chat_message("assistant"):
         try:
@@ -180,7 +274,7 @@ def main() -> None:
 
             with st.spinner("Thinking…"):
                 resp = orch.handle(prompt)
-            st.markdown(resp.answer)
+
             meta_bits = [f"intent=`{resp.intent}`", f"agent=`{resp.agent}`"]
             if resp.provider:
                 meta_bits.append(f"provider=`{resp.provider}`")
@@ -188,16 +282,42 @@ def main() -> None:
                 meta_bits.append("RAG")
             if resp.used_mcp:
                 meta_bits.append("MCP")
-            st.caption(" · ".join(meta_bits))
+            meta_caption = " · ".join(meta_bits)
+
             answer = resp.answer
+            blocks_payload = [
+                {
+                    "kind": b.kind,
+                    "text": b.text,
+                    "citations": b.citations,
+                    "meta": b.meta,
+                }
+                for b in resp.blocks
+            ]
+            _render_assistant_message(
+                content=answer,
+                blocks=list(resp.blocks),
+                meta_caption=meta_caption,
+            )
         except ConfigError as exc:
             answer = f"[Error] LLM configuration error: {exc}. No silent fallback."
+            meta_caption = None
+            blocks_payload = [{"kind": "error", "text": answer, "citations": [], "meta": {}}]
             st.error(answer)
         except Exception as exc:  # noqa: BLE001
             answer = f"[Error] {exc}"
+            meta_caption = None
+            blocks_payload = [{"kind": "error", "text": answer, "citations": [], "meta": {}}]
             st.error(answer)
 
-    st.session_state.messages.append({"role": "assistant", "content": answer})
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": answer,
+            "blocks": blocks_payload,
+            "meta_caption": meta_caption,
+        }
+    )
     st.session_state.agent_session = (
         st.session_state.orchestrator.session
         if st.session_state.orchestrator

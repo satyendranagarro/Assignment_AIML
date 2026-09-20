@@ -6,7 +6,7 @@ from typing import Any
 
 import httpx
 
-FRANKFURTER = "https://api.frankfurter.app/latest"
+FRANKFURTER = "https://api.frankfurter.dev/v1/latest"
 
 
 class CurrencyToolError(RuntimeError):
