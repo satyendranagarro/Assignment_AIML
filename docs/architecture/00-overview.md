@@ -12,18 +12,93 @@ Source of truth for product requirements: [`Requirement/AI_Travel_Planning_Assis
 
 ## System context
 
-```text
-User → Streamlit UI → OrchestratorAgent (A0)
-                         ├─ RAGKnowledgeAgent (A1) → HybridRetriever → Chroma + Neo4j
-                         ├─ WeatherToolAgent (A2) → MCP Weather
-                         ├─ CurrencyToolAgent (A3) → MCP Currency
-                         └─ CombinedPlannerAgent (A4) → A1 + A2/A3
+### Runtime (query path)
 
-KB build (Phases 1–4):
-  sources.yaml → [Phase 1.5: infra/neo4j + infra/chroma]
-       → crawl/normalize → ontology → chunk/embed → Chroma (infra)
-                                           entity graph → Neo4j (infra)
-  Phase 5 agents → same Chroma + Neo4j
+```mermaid
+flowchart TB
+  User([User]) --> UI[Streamlit UI]
+  UI --> A0[OrchestratorAgent A0]
+
+  A0 -->|rag_only| A1[RAGKnowledgeAgent A1]
+  A0 -->|weather_only| A2[WeatherToolAgent A2]
+  A0 -->|currency_only| A3[CurrencyToolAgent A3]
+  A0 -->|combined_*| A4[CombinedPlannerAgent A4]
+  A0 -->|clarify / out_of_scope| Reply[Labeled response]
+
+  A1 --> HR[HybridRetriever]
+  A4 --> A1
+  A4 --> A2
+  A4 --> A3
+
+  HR --> Chroma[(Chroma)]
+  HR --> Neo4j[(Neo4j)]
+
+  A2 --> WxMCP[MCP Weather]
+  A3 --> FxMCP[MCP Currency]
+  WxMCP --> OpenMeteo[Open-Meteo]
+  FxMCP --> Frankfurter[Frankfurter]
+
+  A1 --> LLM[LLM factory]
+  A2 --> LLM
+  A3 --> LLM
+  A4 --> LLM
+  LLM --> Providers[OpenAI / Gemini / Cursor / Ollama / fake]
+
+  A1 --> Obs[Observability JSON logs]
+  A2 --> Obs
+  A3 --> Obs
+  A4 --> Obs
+  A0 --> Obs
+```
+
+### Knowledge build (Phases 1–4)
+
+```mermaid
+flowchart LR
+  Sources[sources.yaml] --> Crawl[Crawl / normalize]
+  Crawl --> Onto[Ontology / taxonomy]
+  Onto --> Chunk[Chunk + embed]
+  Onto --> Graph[Entity graph]
+  Chunk --> Chroma[(Chroma infra/chroma)]
+  Graph --> Neo4j[(Neo4j infra/neo4j)]
+  Chroma --> Agents[Phase 5 agents]
+  Neo4j --> Agents
+```
+
+### Agent routing sequence
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant UI as Streamlit
+  participant A0 as Orchestrator A0
+  participant Router as Intent router
+  participant Agent as A1 / A2 / A3 / A4
+  participant KB as Chroma + Neo4j
+  participant MCP as Weather / Currency MCP
+  participant LLM as LLM factory
+
+  User->>UI: question
+  UI->>A0: handle(message, session)
+  A0->>Router: classify_intent
+  Router-->>A0: intent
+  alt rag_only
+    A0->>Agent: A1
+    Agent->>KB: retrieve
+    Agent->>LLM: grounded answer
+  else weather / currency
+    A0->>Agent: A2 or A3
+    Agent->>MCP: live or mock
+    Agent->>LLM: optional phrasing
+  else combined
+    A0->>Agent: A4
+    Agent->>KB: retrieve
+    Agent->>MCP: weather and/or FX
+    Agent->>LLM: day-wise plan
+  end
+  Agent-->>A0: labeled blocks
+  A0-->>UI: AgentResponse
+  UI-->>User: KB / MCP / LLM labels
 ```
 
 ## Stack A (locked)
