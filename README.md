@@ -37,23 +37,23 @@ LangChain · OpenAI / Gemini / Cursor · Chroma · Neo4j · Streamlit · MCP (we
 
 Agents reuse the **same** Neo4j/Chroma that Phase 4 loads (Phase 1.5 Compose).
 
-## Quick start (offline demo)
+## Quick start
 
-Requires **Python 3.10+** (3.12 recommended).
+Requires **Python 3.10+** (3.12 recommended). Set a real provider key in `.env` (see `.env.example`).
 
 ```bash
 cp .env.example .env
+# Set OPENAI_API_KEY (or GOOGLE_API_KEY / CURSOR_API_KEY / Ollama) and LLM_PROVIDER
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Index KB offline (if data/chroma empty)
+# Index KB (if data/chroma empty)
 python scripts/crawl.py --force-manual
 python scripts/normalize.py
 python scripts/build_ontology.py
-python scripts/build_kb.py --embeddings fake --gate
+python scripts/build_kb.py --embeddings openai --gate
 python scripts/load_neo4j.py --memory
 
-export LLM_PROVIDER=fake EMBEDDING_PROVIDER=fake MCP_MOCK_MODE=true
 streamlit run app/streamlit_app.py
 ```
 
@@ -72,7 +72,7 @@ docker compose -f infra/compose.yml up -d
 
 # 2. Load into the same infra
 export CHROMA_HOST=localhost CHROMA_PORT=8000
-python scripts/build_kb.py --embeddings fake --gate   # or openai
+python scripts/build_kb.py --embeddings openai --gate
 python scripts/load_neo4j.py --require-neo4j
 
 # 3. Optional MCP sidecars + Streamlit container
@@ -86,13 +86,12 @@ Profiles: `pipeline` (kb job) · `mcp` (weather/currency) · `app` (Streamlit).
 ## MCP notes
 
 - Agents use **in-process** Open-Meteo / Frankfurter clients by default.
-- `MCP_MOCK_MODE=true` → documented mocks for offline demos.
 - MCP down → explicit error; **no** fabricated temperatures or FX rates.
 - Stdio servers: `python -m mcp_servers.weather.server` / `currency.server`.
 
 ## LLM toggle
 
-`LLM_PROVIDER=openai|gemini|cursor|ollama|fake` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
+`LLM_PROVIDER=openai|gemini|cursor|ollama` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
 
 ## Out of scope
 
