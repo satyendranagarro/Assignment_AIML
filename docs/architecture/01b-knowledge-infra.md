@@ -21,17 +21,16 @@ Phase 5   agents → SAME infra
 Phase 6   MCP/app IaC + umbrella + deliverables
 ```
 
-If Phase 1–4 app code already exists, treat 1.5 as a **required backfill** before calling the live-store path “done” for demos and agent tests.
-
 ## Inputs / outputs
 
 | Artifact | Path | Role |
 |----------|------|------|
-| Neo4j Compose | `infra/neo4j/` | Graph store; `NEO4J_URI` / `NEO4J_USER` / `NEO4J_PASSWORD` |
-| Chroma Compose | `infra/chroma/` | Vector store service + persistent volume (or bind `data/chroma/`) |
-| Optional job | `infra/kb-pipeline/` | One-shot/job image to run ingest→crawl→normalize→ontology→build_kb→load |
-| Env contract | `.env.example` | Document vars owned by knowledge units |
-| Volumes | `data/raw`, `data/processed`, `data/chroma`, `ontology/` | Persist KB artifacts |
+| Neo4j Compose | `infra/neo4j/compose.yml` | Graph store; `NEO4J_*` |
+| Chroma Compose | `infra/chroma/compose.yml` | Vector server; `CHROMA_HOST` / `CHROMA_PORT` |
+| Umbrella | `infra/compose.yml` | Include both + optional `kb-pipeline` profile |
+| Pipeline image | `infra/kb-pipeline/Dockerfile` | Optional one-shot load job |
+| Env contract | `.env.example` | Knowledge vars documented |
+| Runbook | `infra/README.md` | Up / down / host CLI load |
 
 **Not in this phase:** MCP weather/currency, Streamlit app (Phase 5–6).
 
@@ -39,7 +38,7 @@ If Phase 1–4 app code already exists, treat 1.5 as a **required backfill** bef
 
 1. **Separate units** — start Neo4j without Chroma (or vice versa) when debugging.
 2. **Same stack for load and agents** — Phase 4 writes; Phase 5 reads; no second Neo4j/Chroma.
-3. **Offline fallback remains** — `--embeddings fake`, `--memory`, host-local `data/chroma/` for CI without Docker.
+3. **Offline fallback remains** — unset `CHROMA_HOST`, use `CHROMA_PATH=data/chroma`; `--memory` for graph.
 4. **Secrets in `.env`** — never commit passwords.
 
 ## Env contract (knowledge)
@@ -48,37 +47,48 @@ If Phase 1–4 app code already exists, treat 1.5 as a **required backfill** bef
 |-----|--------|--------|
 | `NEO4J_URI` | `infra/neo4j/` | Default `bolt://localhost:7687` |
 | `NEO4J_USER` | `infra/neo4j/` | Default `neo4j` |
-| `NEO4J_PASSWORD` | `infra/neo4j/` | Required for live graph load |
-| `CHROMA_PATH` / server URL | `infra/chroma/` | Persist collection `singapore_kb`; align with `src/rag` |
-| `EMBEDDING_PROVIDER` | app / pipeline | Used at load time (Phase 4), not by Compose itself |
+| `NEO4J_PASSWORD` | `infra/neo4j/` | Required for Compose + live load |
+| `CHROMA_HOST` | `infra/chroma/` | e.g. `localhost`; empty = local `CHROMA_PATH` |
+| `CHROMA_PORT` | `infra/chroma/` | Default `8000` |
+| `CHROMA_PATH` | local offline | Used when `CHROMA_HOST` unset |
 
-## Suggested commands (when implemented)
+`src/rag/chroma_store.py` switches to `chromadb.HttpClient` when `CHROMA_HOST` is set.
+
+## How to run
 
 ```bash
-docker compose -f infra/neo4j/compose.yml up -d
-docker compose -f infra/chroma/compose.yml up -d
-# healthcheck bolt + chroma HTTP/heartbeat
-# then Phase 2–4 CLIs (host or infra/kb-pipeline)
+cp .env.example .env   # set NEO4J_PASSWORD=changeme
+docker compose -f infra/compose.yml up -d
+# or: docker compose -f infra/neo4j/compose.yml up -d
+#     docker compose -f infra/chroma/compose.yml up -d
+
+export CHROMA_HOST=localhost CHROMA_PORT=8000
+python scripts/build_kb.py --embeddings fake --gate
+python scripts/load_neo4j.py --require-neo4j
+
+pytest tests/test_phase15_infra.py -q
 ```
 
-## Exit criteria (gate → Phase 2, or unlock Phase 4 live path)
+Optional pipeline profile: see `infra/kb-pipeline/README.md`.
 
-- [ ] `infra/neo4j/` up/down documented; bolt healthcheck passes
-- [ ] `infra/chroma/` up/down documented; volume persists across restart
-- [ ] `.env.example` lists knowledge vars; README links start order
-- [ ] Optional `infra/kb-pipeline/` documented (or explicit “host CLIs OK”)
-- [ ] Note in `DECISIONS.md`: knowledge IaC = Phase 1.5; MCP/app = Phase 5–6
-- [ ] Smoke: can connect from host with `NEO4J_*` (and Chroma client settings)
+## Exit criteria (gate)
+
+- [x] `infra/neo4j/` up/down documented; bolt healthcheck in Compose
+- [x] `infra/chroma/` up/down documented; persistent volume + healthcheck
+- [x] `.env.example` lists knowledge vars; `infra/README.md` + root README start order
+- [x] Optional `infra/kb-pipeline/` Dockerfile + docs (host CLIs remain default)
+- [x] `DECISIONS.md` records knowledge IaC = Phase 1.5
+- [x] App supports `CHROMA_HOST` / `CHROMA_PORT`; tests cover layout + env helper
 
 ### Decision table (Phase 1.5 → next)
 
 | Observation | Action |
 |-------------|--------|
-| Neo4j healthy | Proceed crawl/ontology; Phase 4 uses `--require-neo4j` for live gate |
-| Chroma volume OK | Phase 4 `build_kb` targets this unit |
-| Docker unavailable | Keep offline fallback; do not block Phase 2–3 file work |
-| Agents need KB | Must use **same** Compose project/env as Phase 4 load |
+| Neo4j healthy | Phase 4 uses `--require-neo4j` for live gate |
+| Chroma healthy + `CHROMA_HOST` set | Phase 4 `build_kb` targets server |
+| Docker unavailable | Offline fallback; do not block file work |
+| Agents need KB | Same Compose project/env as Phase 4 load |
 
 ## Phase 1.5 status
 
-**Planned.** Implement Compose units before relying on live Neo4j/Chroma for pipeline or agent tests. See also Phase 4 load ([`04-stores.md`](04-stores.md)) and Phase 6 ops umbrella ([`06-ops-and-acceptance.md`](06-ops-and-acceptance.md)).
+**Complete** (Compose units + env contract + Chroma server client). Live load demos: start `infra/compose.yml`, then Phase 4 CLIs. See [`04-stores.md`](04-stores.md) and [`06-ops-and-acceptance.md`](06-ops-and-acceptance.md).

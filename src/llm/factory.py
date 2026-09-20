@@ -1,19 +1,35 @@
-"""Chat + embedding factory with toggleable providers (no silent fallback)."""
+"""Chat + embedding factory — resolves provider and delegates to adapters.
+
+Switch providers with `LLM_PROVIDER` / Streamlit session / explicit kwarg.
+Callers should use only `get_chat_model` / `get_embeddings` / `get_adapter`.
+"""
 
 from __future__ import annotations
 
 import os
-from typing import Any, Literal
+from typing import Any
 
 from dotenv import load_dotenv
 
-ProviderName = Literal["openai", "gemini", "cursor", "fake"]
+from src.llm.adapters import ADAPTERS
+from src.llm.contract import (
+    VALID_PROVIDERS,
+    ConfigError,
+    LLMProviderAdapter,
+    ProviderName,
+)
 
-_VALID = frozenset({"openai", "gemini", "cursor", "fake"})
-
-
-class ConfigError(RuntimeError):
-    """Selected provider is missing required configuration."""
+# Re-export for existing imports
+__all__ = [
+    "ConfigError",
+    "ProviderName",
+    "get_adapter",
+    "get_chat_model",
+    "get_embeddings",
+    "list_providers",
+    "resolve_embedding_provider",
+    "resolve_provider",
+]
 
 
 def _session_provider() -> str | None:
@@ -29,13 +45,16 @@ def _session_provider() -> str | None:
 def resolve_provider(explicit: str | None = None) -> ProviderName:
     """kwarg → Streamlit session → LLM_PROVIDER env → default openai."""
     load_dotenv()
-    raw = (explicit or _session_provider() or os.getenv("LLM_PROVIDER") or "openai").strip().lower()
+    raw = (
+        explicit or _session_provider() or os.getenv("LLM_PROVIDER") or "openai"
+    ).strip().lower()
     if raw == "azure":
         # Back-compat alias: treat Azure OpenAI as openai-compatible via env.
         raw = "openai"
-    if raw not in _VALID:
+    if raw not in VALID_PROVIDERS:
         raise ConfigError(
-            f"Unknown LLM_PROVIDER={raw!r}. Expected one of: openai, gemini, cursor, fake"
+            f"Unknown LLM_PROVIDER={raw!r}. Expected one of: "
+            + ", ".join(sorted(VALID_PROVIDERS))
         )
     return raw  # type: ignore[return-value]
 
@@ -50,6 +69,20 @@ def resolve_embedding_provider(explicit: str | None = None) -> ProviderName:
     return resolve_provider(None)
 
 
+def list_providers() -> tuple[ProviderName, ...]:
+    """Registered provider names (for UI toggles / docs)."""
+    return tuple(sorted(ADAPTERS.keys()))  # type: ignore[return-value]
+
+
+def get_adapter(provider: str | None = None) -> LLMProviderAdapter:
+    """Instantiate the adapter for the resolved provider (switch point)."""
+    name = resolve_provider(provider)
+    cls = ADAPTERS.get(name)
+    if cls is None:
+        raise ConfigError(f"No adapter registered for provider={name!r}")
+    return cls()  # type: ignore[operator, return-value]
+
+
 def get_chat_model(
     provider: str | None = None,
     *,
@@ -57,138 +90,12 @@ def get_chat_model(
     **kwargs: Any,
 ) -> Any:
     """Return a LangChain chat model for the selected provider."""
-    name = resolve_provider(provider)
     load_dotenv()
-
-    if name == "fake":
-        from langchain_core.language_models.fake_chat_models import FakeListChatModel
-
-        return FakeListChatModel(responses=kwargs.get("responses") or ["[fake LLM response]"])
-
-    if name == "openai":
-        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
-        if not api_key:
-            raise ConfigError("OPENAI_API_KEY is required when LLM_PROVIDER=openai")
-        # Azure OpenAI path when endpoint + deployment are set
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT")
-        if endpoint and deployment:
-            from langchain_openai import AzureChatOpenAI
-
-            return AzureChatOpenAI(
-                azure_endpoint=endpoint,
-                api_key=api_key,
-                api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21"),
-                azure_deployment=deployment,
-                temperature=temperature,
-                **kwargs,
-            )
-        from langchain_openai import ChatOpenAI
-
-        return ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            api_key=api_key,
-            temperature=temperature,
-            **kwargs,
-        )
-
-    if name == "gemini":
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ConfigError("GOOGLE_API_KEY is required when LLM_PROVIDER=gemini")
-        try:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-        except ImportError as exc:
-            raise ConfigError(
-                "langchain-google-genai is required for LLM_PROVIDER=gemini"
-            ) from exc
-        return ChatGoogleGenerativeAI(
-            model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
-            google_api_key=api_key,
-            temperature=temperature,
-            **kwargs,
-        )
-
-    # cursor — OpenAI-compatible gateway
-    api_key = os.getenv("CURSOR_API_KEY")
-    base_url = os.getenv("CURSOR_LLM_BASE_URL")
-    if not api_key or not base_url:
-        raise ConfigError(
-            "CURSOR_API_KEY and CURSOR_LLM_BASE_URL are required when LLM_PROVIDER=cursor"
-        )
-    from langchain_openai import ChatOpenAI
-
-    return ChatOpenAI(
-        model=os.getenv("CURSOR_MODEL", "gpt-4o-mini"),
-        api_key=api_key,
-        base_url=base_url,
-        temperature=temperature,
-        **kwargs,
-    )
+    return get_adapter(provider).get_chat_model(temperature=temperature, **kwargs)
 
 
 def get_embeddings(provider: str | None = None, **kwargs: Any) -> Any:
     """Return a LangChain Embeddings instance for the selected provider."""
-    name = resolve_embedding_provider(provider)
     load_dotenv()
-
-    if name == "fake":
-        from src.llm.lexical import LexicalHashEmbeddings
-
-        return LexicalHashEmbeddings(size=int(kwargs.get("size", 384)))
-
-    if name == "openai":
-        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
-        if not api_key:
-            raise ConfigError("OPENAI_API_KEY is required for embeddings (openai)")
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        deployment = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
-        if endpoint and deployment:
-            from langchain_openai import AzureOpenAIEmbeddings
-
-            return AzureOpenAIEmbeddings(
-                azure_endpoint=endpoint,
-                api_key=api_key,
-                api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21"),
-                azure_deployment=deployment,
-                **kwargs,
-            )
-        from langchain_openai import OpenAIEmbeddings
-
-        return OpenAIEmbeddings(
-            model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
-            api_key=api_key,
-            **kwargs,
-        )
-
-    if name == "gemini":
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ConfigError("GOOGLE_API_KEY is required for embeddings (gemini)")
-        try:
-            from langchain_google_genai import GoogleGenerativeAIEmbeddings
-        except ImportError as exc:
-            raise ConfigError(
-                "langchain-google-genai is required for EMBEDDING_PROVIDER=gemini"
-            ) from exc
-        return GoogleGenerativeAIEmbeddings(
-            model=os.getenv("GEMINI_EMBEDDING_MODEL", "models/text-embedding-004"),
-            google_api_key=api_key,
-            **kwargs,
-        )
-
-    # cursor — OpenAI-compatible embeddings endpoint
-    api_key = os.getenv("CURSOR_API_KEY")
-    base_url = os.getenv("CURSOR_LLM_BASE_URL")
-    if not api_key or not base_url:
-        raise ConfigError(
-            "CURSOR_API_KEY and CURSOR_LLM_BASE_URL are required for embeddings (cursor)"
-        )
-    from langchain_openai import OpenAIEmbeddings
-
-    return OpenAIEmbeddings(
-        model=os.getenv("CURSOR_EMBEDDING_MODEL", os.getenv("CURSOR_MODEL", "text-embedding-3-small")),
-        api_key=api_key,
-        base_url=base_url,
-        **kwargs,
-    )
+    name = resolve_embedding_provider(provider)
+    return get_adapter(name).get_embeddings(**kwargs)

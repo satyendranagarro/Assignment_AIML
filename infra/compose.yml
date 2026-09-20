@@ -1,0 +1,36 @@
+# Knowledge umbrella: Neo4j + Chroma (+ optional kb-pipeline profile).
+# Usage (from repo root):
+#   export NEO4J_PASSWORD=changeme
+#   docker compose -f infra/compose.yml up -d
+#   docker compose -f infra/compose.yml --profile pipeline run --rm kb-pipeline \
+#     python scripts/ingest.py
+#   docker compose -f infra/compose.yml down
+
+include:
+  - path: neo4j/compose.yml
+  - path: chroma/compose.yml
+
+services:
+  kb-pipeline:
+    build:
+      context: ..
+      dockerfile: infra/kb-pipeline/Dockerfile
+    profiles:
+      - pipeline
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD}
+      CHROMA_HOST: chroma
+      CHROMA_PORT: "8000"
+      CHROMA_PATH: /app/data/chroma
+      PYTHONPATH: /app
+    volumes:
+      - ../data:/app/data
+      - ../ontology:/app/ontology
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    working_dir: /app

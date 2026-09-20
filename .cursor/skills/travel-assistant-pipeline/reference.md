@@ -29,11 +29,14 @@ Retain `title` + `url` metadata for citations. Respect each site’s reuse terms
 
 ## LLM providers (toggle)
 
-| Value | Chat | Env |
-|-------|------|-----|
-| `openai` | ChatOpenAI | `OPENAI_API_KEY`, `OPENAI_MODEL` |
-| `gemini` | ChatGoogleGenerativeAI | `GOOGLE_API_KEY`, `GEMINI_MODEL` |
-| `cursor` | OpenAI-compatible → Cursor gateway | `CURSOR_API_KEY`, `CURSOR_LLM_BASE_URL`, `CURSOR_MODEL` |
+Contract: `LLMProviderAdapter` in `src/llm/contract.py`. Registry: `src/llm/adapters.ADAPTERS`. Factory: `get_adapter` / `get_chat_model` / `get_embeddings`.
+
+| Value | Adapter | Env |
+|-------|---------|-----|
+| `openai` | `OpenAIAdapter` | `OPENAI_API_KEY`, `OPENAI_MODEL` |
+| `gemini` | `GeminiAdapter` | `GOOGLE_API_KEY`, `GEMINI_MODEL` |
+| `cursor` | `CursorAdapter` → local gateway | `CURSOR_API_KEY`, `CURSOR_LLM_BASE_URL` (e.g. `http://localhost:8787/v1`), `CURSOR_MODEL` (e.g. `composer-2.5`); use separate `EMBEDDING_PROVIDER` for RAG |
+| `fake` | `FakeAdapter` | none (offline tests) |
 
 Resolution: kwarg → Streamlit session → `LLM_PROVIDER` → default `openai`. No silent fallback.
 
@@ -56,7 +59,7 @@ data/sources.yaml, raw/, processed/, chroma/, coverage_matrix.yaml
 ontology/taxonomy.yaml, schema.json, entities.json
 scripts/ingest.py, crawl.py, normalize.py, build_kb.py, load_neo4j.py, eval_retrieval.py
 mcp_servers/weather/, currency/
-infra/neo4j/, chroma/, kb-pipeline/   # Phase 1.5 knowledge IaC (planned)
+infra/neo4j/, chroma/, compose.yml, kb-pipeline/   # Phase 1.5 knowledge IaC
 infra/mcp-weather/, mcp-currency/, app/  # Phase 5–6 runtime IaC (planned)
 src/llm/, observability/, rag/, graph/, agents/, prompts/
 app/streamlit_app.py
@@ -71,9 +74,12 @@ docs/architecture/00–06 (+ 01b), USE_CASES.md
 
 | Path | Service |
 |------|---------|
-| `infra/neo4j/` | Neo4j graph store |
-| `infra/chroma/` | Chroma vector store |
-| `infra/kb-pipeline/` | Optional DE → load job |
+| `infra/neo4j/compose.yml` | Neo4j graph store |
+| `infra/chroma/compose.yml` | Chroma vector server |
+| `infra/compose.yml` | Umbrella + optional `kb-pipeline` profile |
+| `infra/kb-pipeline/Dockerfile` | Optional DE → load job |
+
+Set `CHROMA_HOST=localhost` when using Compose Chroma; leave unset for `CHROMA_PATH=data/chroma`.
 
 **Phase 5–6 (runtime):**
 

@@ -57,7 +57,7 @@ Agents must cite `title` + `url` from retrieved chroma hits. Never invent destin
 |----------|-----|-------|
 | `openai` | `OPENAI_API_KEY`, `OPENAI_EMBEDDING_MODEL` | Default production |
 | `gemini` | `GOOGLE_API_KEY` | Optional |
-| `cursor` | `CURSOR_API_KEY` + `CURSOR_LLM_BASE_URL` | OpenAI-compatible |
+| `cursor` | `CursorAdapter` — `CURSOR_API_KEY` + `CURSOR_LLM_BASE_URL` | OpenAI-compatible gateway |
 | `fake` | — | Lexical hash vectors for offline smoke/tests |
 
 `EMBEDDING_PROVIDER` overrides chat provider. Missing key → `ConfigError` (no silent fallback). Re-index Chroma after changing embedding provider.
@@ -108,7 +108,7 @@ pytest tests/test_phase4_stores.py -q
 - [x] HybridRetriever merges vector + graph hits
 - [x] LLM/embedding factory + structured retrieve logs wired
 - [x] Tests cover chunk, build, graph expand, gate, CLI
-- [ ] **Live infra path:** Phase 1.5 up; `load_neo4j.py --require-neo4j` + retrieval against Compose Chroma/Neo4j (backfill with 1.5)
+- [x] **Live infra path:** Phase 1.5 Compose; set `CHROMA_HOST` + `load_neo4j.py --require-neo4j` for demos (offline fallback remains for CI)
 
 ### Decision table (Phase 4 → 5)
 
@@ -121,4 +121,4 @@ pytest tests/test_phase4_stores.py -q
 
 ## Phase 4 status
 
-**Complete for offline/client path** (`--embeddings fake` / `--memory`). **Live load-into-infra** depends on Phase 1.5 ([`01b-knowledge-infra.md`](01b-knowledge-infra.md)). Next: Phase 5 agents on the same stack (`05-agents.md`).
+**Complete.** Offline CI path (`--embeddings fake` / `--memory`) and live path via Phase 1.5 ([`01b-knowledge-infra.md`](01b-knowledge-infra.md), [`infra/README.md`](../../infra/README.md)). Next: Phase 5 agents on the same stack (`05-agents.md`).

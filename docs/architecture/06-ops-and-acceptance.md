@@ -11,7 +11,7 @@ Ship assignment deliverables (README, samples, demo) and finish **non-knowledge*
 | Artifact | Path | Role |
 |----------|------|------|
 | Ops runbook | this doc + README | Full demo start order |
-| Knowledge IaC | `infra/neo4j/`, `infra/chroma/`, optional `infra/kb-pipeline/` | Owned by Phase 1.5 |
+| Knowledge IaC | `infra/neo4j/`, `infra/chroma/`, optional `infra/kb-pipeline/` | **Phase 1.5 done** |
 | MCP / app IaC | `infra/mcp-weather/`, `infra/mcp-currency/`, `infra/app/` | This phase (+ Phase 5 when servers exist) |
 | Optional umbrella | `infra/compose.yml` | `include` / profiles for “full local” |
 | Env contract | `.env.example` | Vars per unit |
@@ -25,9 +25,9 @@ Ship assignment deliverables (README, samples, demo) and finish **non-knowledge*
 
 | Service | Unit | Used by |
 |---------|------|---------|
-| Neo4j | `infra/neo4j/` | Phase 4 load + Phase 5 agents |
-| Chroma | `infra/chroma/` | Phase 4 `build_kb` + Phase 5 retrieval |
-| KB pipeline job (optional) | `infra/kb-pipeline/` | Reproducible DE → load |
+| Neo4j | `infra/neo4j/` | Phase 4 load + Phase 5 agents (**done**) |
+| Chroma | `infra/chroma/` | Phase 4 `build_kb` + Phase 5 retrieval (**done**) |
+| KB pipeline job (optional) | `infra/kb-pipeline/` | Reproducible DE → load (**done**) |
 
 ### Runtime units (Phase 5–6)
 
