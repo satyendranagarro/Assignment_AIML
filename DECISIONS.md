@@ -48,7 +48,7 @@ Optional umbrella includes knowledge units. Secrets never committed. Agents use 
 - **Toggle:** `LLM_PROVIDER=openai|gemini|cursor|fake` (Streamlit sidebar overrides per session)
 - **OpenAI:** `OPENAI_API_KEY`, optional `OPENAI_MODEL` (default `gpt-4o-mini`)
 - **Gemini:** `GOOGLE_API_KEY`, optional `GEMINI_MODEL` (default `gemini-2.0-flash`)
-- **Cursor:** `CursorAdapter` — `CURSOR_API_KEY` (dashboard Integrations), `CURSOR_LLM_BASE_URL` (local OpenAI-compatible gateway, e.g. `http://localhost:8787/v1`), optional `CURSOR_MODEL` (e.g. `composer-2.5`). Cursor has no official chat-completions API — gateway required. Prefer `EMBEDDING_PROVIDER=openai|fake` for RAG.
+- **Cursor:** `CursorAdapter` — online via `cursor-sdk` (`CURSOR_API_KEY`, `CURSOR_MODEL`, `CURSOR_RUNTIME=cloud|local`). Optional gateway: `CURSOR_USE_GATEWAY=true` + `CURSOR_LLM_BASE_URL`. Prefer `EMBEDDING_PROVIDER=openai|fake` for RAG.
 - **Embeddings override:** optional `EMBEDDING_PROVIDER` (same enum); re-index Chroma if changed
 - **Logging:** `LOG_LEVEL`, `LOG_FORMAT=json|text`, optional `LOG_FILE=logs/app.jsonl`
 - Missing key for selected provider → config error; **no silent fallback**

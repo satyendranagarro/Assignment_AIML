@@ -33,7 +33,7 @@ Apply this skill for any work on the NAGP_AIML travel assistant: data pipeline, 
 2. Resolution order: explicit kwarg → Streamlit session → `LLM_PROVIDER` env → default `openai`.
 3. Missing key for selected provider → `config_error`; never silent fallback to another provider.
 4. **Adapter contract:** `src/llm/contract.py` (`LLMProviderAdapter`) — each provider is `src/llm/adapters/*`; factory switches via registry. Add a provider by implementing the contract + registering in `ADAPTERS`.
-5. `cursor` = `CursorAdapter` → OpenAI-compatible client against a **local Cursor gateway** (`CURSOR_LLM_BASE_URL` e.g. `http://localhost:8787/v1` + `CURSOR_API_KEY` + `CURSOR_MODEL` e.g. `composer-2.5`). No official Cursor chat-completions API; prefer separate `EMBEDDING_PROVIDER` for RAG.
+5. `cursor` = `CursorAdapter` → **online default:** `cursor-sdk` `Agent.prompt` (cloud no-repo or local scratch). Optional gateway: `CURSOR_USE_GATEWAY=true` + `CURSOR_LLM_BASE_URL`. Prefer separate `EMBEDDING_PROVIDER` for RAG.
 
 ## Observability rules
 
