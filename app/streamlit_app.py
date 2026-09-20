@@ -14,10 +14,16 @@ if str(ROOT) not in sys.path:
 import streamlit as st
 from dotenv import load_dotenv
 
-load_dotenv(ROOT / ".env")
+# Project .env is source of truth for the UI (overrides sticky shell exports).
+load_dotenv(ROOT / ".env", override=True)
 
 from src.agents import OrchestratorAgent, SessionState, build_retriever  # noqa: E402
-from src.llm.factory import ConfigError, list_providers, resolve_provider  # noqa: E402
+from src.llm.factory import (  # noqa: E402
+    ConfigError,
+    list_providers,
+    resolve_embedding_provider,
+    resolve_provider,
+)
 from src.observability import bind_context, log_event  # noqa: E402
 from mcp_servers.currency.client import CurrencyClient  # noqa: E402
 from mcp_servers.weather.client import WeatherClient  # noqa: E402
@@ -48,12 +54,16 @@ def _cached_retriever(embedding_provider: str, mock_mcp: bool):
     return build_retriever(embedding_provider=embedding_provider)
 
 
+def _embedding_provider_for(chat_provider: str) -> str:
+    """Resolve embeddings after .env load; keep fake chat → fake emb when unset."""
+    if chat_provider == "fake" and not (os.getenv("EMBEDDING_PROVIDER") or "").strip():
+        return "fake"
+    return resolve_embedding_provider(None)
+
+
 def _get_orchestrator(provider: str) -> OrchestratorAgent:
     mock = (os.getenv("MCP_MOCK_MODE") or "").strip().lower() in {"1", "true", "yes"}
-    emb = (os.getenv("EMBEDDING_PROVIDER") or provider or "fake").strip()
-    # Prefer fake embeddings offline if chat is fake
-    if provider == "fake" and not os.getenv("EMBEDDING_PROVIDER"):
-        emb = "fake"
+    emb = _embedding_provider_for(provider)
     try:
         retriever = _cached_retriever(emb, mock)
         st.session_state.retriever_error = None
@@ -106,6 +116,12 @@ def main() -> None:
             )
             if st.session_state.orchestrator is not None:
                 st.session_state.orchestrator.set_provider(choice)
+
+        try:
+            emb_name = _embedding_provider_for(choice)
+        except ConfigError:
+            emb_name = (os.getenv("EMBEDDING_PROVIDER") or "unset").strip() or "unset"
+        st.caption(f"Embeddings: `{emb_name}` (from `EMBEDDING_PROVIDER` / .env)")
 
         st.checkbox(
             "MCP mock mode",
