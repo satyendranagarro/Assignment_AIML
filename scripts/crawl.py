@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Phase 2 crawl CLI — allowlisted seed fetch → data/raw/ + topic bucket gate.
+"""Phase 2 crawl CLI — allowlisted BFS crawl → data/raw/ + topic bucket gate.
 
 Reproducible path:
-  1. Fetch each source's seed_urls (host allowlist + robots.txt + delay)
+  1. BFS from each source's seed_urls (allowlist + robots + delay; max_depth/max_pages)
   2. On robots/HTTP failure, install committed dumps from data/manual/<source_id>/
   3. Normalize raw → processed, score topic buckets, optionally update coverage_matrix.yaml
 """
@@ -20,13 +20,22 @@ if str(ROOT) not in sys.path:
 
 from src.crawl.buckets import evaluate_topic_buckets, update_matrix_statuses  # noqa: E402
 from src.crawl.gate import evaluate_phase2_gate  # noqa: E402
-from src.crawl.runner import crawl_all  # noqa: E402
+from src.crawl.runner import DEFAULT_MAX_PAGES, crawl_all  # noqa: E402
 from src.data.normalize import normalize_all_raw  # noqa: E402
 from src.data.sources import load_and_validate_sources  # noqa: E402
 
 
+def _parse_max_depth(value: str | None) -> int | None:
+    if value is None:
+        return None
+    lowered = value.strip().lower()
+    if lowered in {"", "none", "null", "unbounded"}:
+        return None
+    return int(lowered)
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Phase 2 allowlisted crawl + topic buckets")
+    parser = argparse.ArgumentParser(description="Phase 2 allowlisted BFS crawl + topic buckets")
     parser.add_argument("--sources", type=Path, default=ROOT / "data" / "sources.yaml")
     parser.add_argument("--matrix", type=Path, default=ROOT / "data" / "coverage_matrix.yaml")
     parser.add_argument("--raw", type=Path, default=ROOT / "data" / "raw")
@@ -38,6 +47,18 @@ def main(argv: list[str] | None = None) -> int:
         dest="source_ids",
         default=None,
         help="Limit crawl to one or more source ids (repeatable)",
+    )
+    parser.add_argument(
+        "--max-depth",
+        type=str,
+        default=None,
+        help="BFS depth cap (0=seeds only). Omit or 'none' = unbounded (yaml default).",
+    )
+    parser.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help=f"Max pages attempted per source (default from yaml or {DEFAULT_MAX_PAGES})",
     )
     parser.add_argument(
         "--force-manual",
@@ -69,6 +90,9 @@ def main(argv: list[str] | None = None) -> int:
 
     sources, meta = load_and_validate_sources(args.sources)
     source_ids = set(args.source_ids) if args.source_ids else None
+    # CLI omit → read yaml (null=unbounded). Explicit --max-depth 0 = seeds only.
+    cli_depth = _parse_max_depth(args.max_depth) if args.max_depth is not None else None
+    use_meta_depth = args.max_depth is None
 
     crawl_results = []
     if not args.gate_only:
@@ -80,6 +104,9 @@ def main(argv: list[str] | None = None) -> int:
             use_manual_fallback=not args.no_manual_fallback,
             force_manual=args.force_manual,
             source_ids=source_ids,
+            max_depth=cli_depth,
+            max_pages=args.max_pages,
+            use_meta_depth=use_meta_depth,
         )
 
     docs = []

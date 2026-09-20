@@ -107,4 +107,5 @@ Mapped to use-case IDs in [`docs/USE_CASES.md`](../USE_CASES.md).
 
 - **Phase 0 — Complete.** Skill, scaffold, this overview, USE_CASES, README, DECISIONS, `.env.example`, `requirements.txt`, `.gitignore`.
 - **Phase 1 — Complete.** See [`01-data-pipeline.md`](01-data-pipeline.md): `data/sources.yaml` (≥3 sources), `data/coverage_matrix.yaml`, `scripts/ingest.py` / `normalize.py`, `src/data/`.
-- **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md): allowlisted crawl, manual fallbacks, topic buckets green. Next: Phase 3 ontology (`03-ontology.md`).
+- **Phase 2 — Complete.** See [`02-crawl.md`](02-crawl.md): allowlisted crawl, manual fallbacks, topic buckets green.
+- **Phase 3 — Complete.** See [`03-ontology.md`](03-ontology.md): taxonomy, gazetteer extract, ≥20 spot-checked entities. Next: Phase 4 stores (`04-stores.md`).

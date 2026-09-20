@@ -29,6 +29,9 @@ class Source:
     seed_urls: tuple[str, ...]
     allowlist_hosts: tuple[str, ...]
     citation: Citation
+    # Destination scoping for BFS (empty = host allowlist only).
+    url_path_prefixes: tuple[str, ...] = ()
+    url_path_contains: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> Source:
@@ -49,6 +52,8 @@ class Source:
                 title=str(citation_raw.get("title") or raw["title"]),
                 url=str(citation_raw.get("url") or raw["url"]),
             ),
+            url_path_prefixes=tuple(raw.get("url_path_prefixes") or ()),
+            url_path_contains=tuple(raw.get("url_path_contains") or ()),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,6 +61,8 @@ class Source:
         data["topics"] = list(self.topics)
         data["seed_urls"] = list(self.seed_urls)
         data["allowlist_hosts"] = list(self.allowlist_hosts)
+        data["url_path_prefixes"] = list(self.url_path_prefixes)
+        data["url_path_contains"] = list(self.url_path_contains)
         return data
 
 

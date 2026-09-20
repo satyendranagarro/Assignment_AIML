@@ -32,7 +32,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **3 — Ontology** |
+| Active phase | **4 — Stores** |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -41,8 +41,8 @@ See `.env.example`.
 |-------|--------|-----------------------------------|
 | 0 Skill + scaffold | **done** | Skill, dirs, overview, USE_CASES, `.env.example`, `requirements.txt`, `.gitignore` present. Proceed to Phase 1. |
 | 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. |
-| 2 Crawl | **done** | Allowlisted seed crawl (`src/crawl/`, `scripts/crawl.py`). Live Wikivoyage returns HTTP 403 and Visit Singapore returns thin SPA HTML from this environment → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
-| 3 Ontology | pending | — |
+| 2 Crawl | **done** | Allowlisted BFS crawl (`src/crawl/`, `scripts/crawl.py`): `max_depth=null` (unbounded) + `max_pages=100` per source; Visit Singapore stored as educational excerpts. Live Wikivoyage often HTTP 403 and Visit Singapore thin SPA → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
+| 3 Ontology | **done** | Taxonomy + schema + gazetteer; `ontology/entities.json` has 37 entities, 20 spot-checked with evidence; all 5 classes covered. **Decision:** dense typed graph → Phase 4 hybrid (Chroma + Neo4j GraphRAG). |
 | 4 Stores | pending | — |
 | 5 Agents | pending | — |
 | 6 Deliverables | pending | — |
@@ -51,8 +51,8 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Mode | TBD (`hybrid` \| `chroma_only`) |
-| Rationale | — |
+| Mode | `hybrid` (target; confirm after Phase 4 smoke) |
+| Rationale | Phase 3 produced dense Attraction/District/Transport/ItineraryDay/Tip entities with `located_in` / `nearby` / `part_of_itinerary` relations suitable for Neo4j expansion alongside Chroma. |
 
 ## Notes
 
@@ -60,3 +60,5 @@ See `.env.example`.
 - Project skill: `.cursor/skills/travel-assistant-pipeline/SKILL.md`
 - Architecture overview: `docs/architecture/00-overview.md`
 - Phase 2 crawl note: Wikimedia often returns HTTP 403 for `robots.txt` to some clients; crawler treats missing/forbidden robots as allow (urllib-compatible) and still uses `data/manual/` when page fetch fails.
+- Phase 2 spider upgrade: unbounded BFS (`max_depth: null`) capped by `max_pages: 100` per source; ARR Visit Singapore pages remain Markdown excerpts (not full HTML mirrors).
+- Phase 2 Singapore scope: Wikivoyage BFS limited via `url_path_prefixes` / `url_path_contains` so crawl stays on Singapore pages, not the whole wiki.

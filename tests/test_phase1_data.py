@@ -20,6 +20,9 @@ def test_sources_registry_loads_at_least_three():
     for src in sources:
         assert src.citation.title
         assert src.citation.url.startswith("http")
+    wiki = next(s for s in sources if s.id == "wikivoyage-singapore")
+    assert "/wiki/Singapore" in wiki.url_path_prefixes
+    assert "Singapore" in wiki.url_path_contains
 
 
 def test_phase1_gate_passes():

@@ -37,6 +37,8 @@ def build_crawl_plan(sources) -> list[dict]:
                 "fetch_mode": src.fetch_mode,
                 "seed_urls": list(src.seed_urls),
                 "allowlist_hosts": list(src.allowlist_hosts),
+                "url_path_prefixes": list(src.url_path_prefixes),
+                "url_path_contains": list(src.url_path_contains),
                 "topics": list(src.topics),
                 "raw_dir": f"data/raw/{src.id}/",
             }

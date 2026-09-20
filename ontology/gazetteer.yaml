@@ -1,0 +1,230 @@
+# Gazetteer for deterministic Phase 3 extraction from processed KB text.
+# Only include entities attested (or clearly implied) in data/manual + processed dumps.
+# Do not invent places absent from the knowledge base.
+
+destination: Singapore
+version: "1.0"
+
+entities:
+  # --- Districts ---
+  - id: dist-marina-bay
+    name: Marina Bay
+    class: District
+    aliases: [Marina Bay area, bayfront]
+    tags: [outdoor, culture]
+  - id: dist-chinatown
+    name: Chinatown
+    class: District
+    aliases: []
+    tags: [culture, food, outdoor]
+  - id: dist-little-india
+    name: Little India
+    class: District
+    aliases: []
+    tags: [culture, food, outdoor]
+  - id: dist-kampong-glam
+    name: Kampong Glam
+    class: District
+    aliases: [Kampong Gelam]
+    tags: [culture, food, outdoor]
+  - id: dist-orchard
+    name: Orchard Road
+    class: District
+    aliases: [Orchard]
+    tags: [indoor, outdoor]
+  - id: dist-sentosa
+    name: Sentosa
+    class: District
+    aliases: []
+    tags: [outdoor, family]
+  - id: dist-civic
+    name: Civic District
+    class: District
+    aliases: [Colonial District, Colonial District / Civic District]
+    tags: [culture, outdoor]
+  - id: dist-east-coast
+    name: East Coast Park
+    class: District
+    aliases: [East Coast]
+    tags: [outdoor, family]
+
+  # --- Attractions ---
+  - id: attr-gardens-by-the-bay
+    name: Gardens by the Bay
+    class: Attraction
+    aliases: [Gardens by the Bay outdoor areas]
+    tags: [outdoor, indoor, family]
+    relations:
+      - { type: located_in, target: dist-marina-bay }
+      - { type: nearby, target: attr-merlion-park }
+  - id: attr-merlion-park
+    name: Merlion Park
+    class: Attraction
+    aliases: []
+    tags: [outdoor]
+    relations:
+      - { type: located_in, target: dist-marina-bay }
+      - { type: nearby, target: attr-gardens-by-the-bay }
+  - id: attr-botanic-gardens
+    name: Singapore Botanic Gardens
+    class: Attraction
+    aliases: [Botanic Gardens]
+    tags: [outdoor, family]
+  - id: attr-maxwell-food-centre
+    name: Maxwell Food Centre
+    class: Attraction
+    aliases: []
+    tags: [food, indoor]
+    relations:
+      - { type: located_in, target: dist-chinatown }
+  - id: attr-lau-pa-sat
+    name: Lau Pa Sat
+    class: Attraction
+    aliases: []
+    tags: [food, indoor]
+  - id: attr-old-airport-road
+    name: Old Airport Road
+    class: Attraction
+    aliases: [Old Airport Road Food Centre]
+    tags: [food]
+  - id: attr-southern-ridges
+    name: Southern Ridges
+    class: Attraction
+    aliases: [Southern Ridges walks]
+    tags: [outdoor]
+  - id: attr-marina-waterfront
+    name: Marina Bay waterfront
+    class: Attraction
+    aliases: [bayfront promenade, waterfront promenades]
+    tags: [outdoor]
+    relations:
+      - { type: located_in, target: dist-marina-bay }
+      - { type: nearby, target: attr-gardens-by-the-bay }
+  - id: attr-hawker-centres
+    name: Hawker centres
+    class: Attraction
+    aliases: [hawker centre, neighbourhood centres]
+    tags: [food, indoor, outdoor]
+  - id: attr-museums
+    name: Museums
+    class: Attraction
+    aliases: [museum, indoor museums, indoor gallery]
+    tags: [indoor, culture]
+  - id: attr-aquariums
+    name: Aquariums
+    class: Attraction
+    aliases: [aquarium]
+    tags: [indoor, family]
+  - id: attr-science-centres
+    name: Science and discovery centres
+    class: Attraction
+    aliases: [science centres]
+    tags: [indoor, family]
+
+  # --- Transport ---
+  - id: tx-mrt
+    name: MRT
+    class: TransportMode
+    aliases: [Mass Rapid Transit, MRT line]
+    tags: [transport]
+  - id: tx-bus
+    name: Bus
+    class: TransportMode
+    aliases: [Buses, bus network]
+    tags: [transport]
+  - id: tx-taxi
+    name: Taxi / ride-hailing
+    class: TransportMode
+    aliases: [Taxis, ride-hailing]
+    tags: [transport]
+  - id: tx-walk
+    name: Walking
+    class: TransportMode
+    aliases: [walkable, Walking]
+    tags: [transport, outdoor]
+  - id: tx-tourist-pass
+    name: Tourist pass
+    class: TransportMode
+    aliases: [tourist pass]
+    tags: [transport]
+
+  # --- Itinerary days (sample structures from KB) ---
+  - id: day-wv-1
+    name: Three-day sketch — Day 1 (Marina Bay)
+    class: ItineraryDay
+    aliases: ["Day 1"]
+    tags: [outdoor, indoor]
+    relations:
+      - { type: nearby, target: dist-marina-bay }
+  - id: day-wv-2
+    name: Three-day sketch — Day 2 (heritage walk)
+    class: ItineraryDay
+    aliases: ["Day 2"]
+    tags: [culture, food]
+  - id: day-wv-3
+    name: Three-day sketch — Day 3 (gardens or Sentosa)
+    class: ItineraryDay
+    aliases: ["Day 3"]
+    tags: [outdoor, family, indoor]
+  - id: day-vs-1-2
+    name: 7-day sample — Days 1–2 (iconic waterfront)
+    class: ItineraryDay
+    aliases: ["Days 1–2"]
+    tags: [outdoor, indoor]
+  - id: day-vs-3-4
+    name: 7-day sample — Days 3–4 (heritage neighbourhoods)
+    class: ItineraryDay
+    aliases: ["Days 3–4"]
+    tags: [culture, food]
+  - id: day-vs-5-6
+    name: 7-day sample — Days 5–6 (nature / family)
+    class: ItineraryDay
+    aliases: ["Days 5–6"]
+    tags: [outdoor, family, indoor]
+  - id: day-vs-7
+    name: 7-day sample — Day 7 (flexible wrap-up)
+    class: ItineraryDay
+    aliases: ["Day 7"]
+    tags: [indoor, food]
+
+  # --- Tips ---
+  - id: tip-umbrella
+    name: Carry an umbrella for short storms
+    class: Tip
+    aliases: [umbrella]
+    tags: [outdoor]
+  - id: tip-tap-water
+    name: Tap water is drinkable
+    class: Tip
+    aliases: [Tap water is generally potable, Tap water is drinkable]
+    tags: []
+  - id: tip-dress-modestly
+    name: Dress modestly at religious sites
+    class: Tip
+    aliases: []
+    tags: [culture]
+  - id: tip-rain-swap
+    name: Keep one indoor rain-swap option per day
+    class: Tip
+    aliases: [rain swap, indoor options]
+    tags: [indoor]
+  - id: tip-heat
+    name: Prefer mornings and evenings for outdoor sightseeing
+    class: Tip
+    aliases: [mid-day heat, Outdoor sightseeing is comfortable in mornings]
+    tags: [outdoor]
+
+# Extra relations applied after mention match (entity must be found in corpus)
+extra_relations:
+  - { source: attr-gardens-by-the-bay, type: part_of_itinerary, target: day-wv-1 }
+  - { source: attr-gardens-by-the-bay, type: part_of_itinerary, target: day-vs-1-2 }
+  - { source: dist-chinatown, type: part_of_itinerary, target: day-wv-2 }
+  - { source: dist-little-india, type: part_of_itinerary, target: day-wv-2 }
+  - { source: dist-chinatown, type: part_of_itinerary, target: day-vs-3-4 }
+  - { source: dist-little-india, type: part_of_itinerary, target: day-vs-3-4 }
+  - { source: dist-kampong-glam, type: part_of_itinerary, target: day-vs-3-4 }
+  - { source: dist-sentosa, type: part_of_itinerary, target: day-wv-3 }
+  - { source: dist-sentosa, type: part_of_itinerary, target: day-vs-5-6 }
+  - { source: attr-botanic-gardens, type: part_of_itinerary, target: day-wv-3 }
+  - { source: attr-merlion-park, type: nearby, target: attr-marina-waterfront }
+  - { source: dist-chinatown, type: nearby, target: dist-little-india }

@@ -1,0 +1,1134 @@
+{
+  "destination": "Singapore",
+  "version": "1.0",
+  "taxonomy_classes": [
+    "Attraction",
+    "District",
+    "ItineraryDay",
+    "TransportMode",
+    "Tip"
+  ],
+  "entity_count": 37,
+  "spot_checked_count": 20,
+  "by_class": {
+    "Attraction": 12,
+    "District": 8,
+    "ItineraryDay": 7,
+    "TransportMode": 5,
+    "Tip": 5
+  },
+  "entities": [
+    {
+      "id": "attr-aquariums",
+      "name": "Aquariums",
+      "class": "Attraction",
+      "aliases": [
+        "aquarium"
+      ],
+      "tags": [
+        "family",
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…riendly outdoor time Sentosa and coastal parks suit outdoor play; choose indoor aquariums or science centres if weather turns. Wildlife and nature parks pair well with m…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…eum as a weather pivot. ## Family-friendly picks Science and discovery centres, aquariums, and gentle park trails work well with children. Build shorter segments and inc…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …riendly outdoor time Sentosa and coastal parks suit outdoor play; choose indoor aquariums or science centres if weather"
+    },
+    {
+      "id": "attr-botanic-gardens",
+      "name": "Singapore Botanic Gardens",
+      "class": "Attraction",
+      "aliases": [
+        "Botanic Gardens"
+      ],
+      "tags": [
+        "family",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "part_of_itinerary",
+          "target": "day-wv-3"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…## See (attractions) Major sights include Gardens by the Bay, Merlion Park, the Singapore Botanic Gardens, Chinatown temples, and island attractions on Sentosa. Many outdoor icons have…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "attr-gardens-by-the-bay",
+      "name": "Gardens by the Bay",
+      "class": "Attraction",
+      "aliases": [
+        "Gardens by the Bay outdoor areas"
+      ],
+      "tags": [
+        "family",
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "located_in",
+          "target": "dist-marina-bay"
+        },
+        {
+          "type": "nearby",
+          "target": "attr-merlion-park"
+        },
+        {
+          "type": "part_of_itinerary",
+          "target": "day-wv-1"
+        },
+        {
+          "type": "part_of_itinerary",
+          "target": "day-vs-1-2"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…Days 1–2 — Iconic city and waterfront Marina Bay area highlights often include Gardens by the Bay, the bayfront promenade, and nearby museums. Evenings work well for skyline vie…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…ingapore.com/things-to-do/top-things-to-do/ ## Must-see and skyline experiences Gardens by the Bay, Marina Bay waterfront, and Merlion Park anchor many first visits. Pair outdoor…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…owntown is practical in cooler hours. ## See (attractions) Major sights include Gardens by the Bay, Merlion Park, the Singapore Botanic Gardens, Chinatown temples, and island att…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …Days 1–2 — Iconic city and waterfront Marina Bay area highlights often include Gardens by the Bay, the bayfront promena"
+    },
+    {
+      "id": "attr-hawker-centres",
+      "name": "Hawker centres",
+      "class": "Attraction",
+      "aliases": [
+        "hawker centre",
+        "neighbourhood centres"
+      ],
+      "tags": [
+        "food",
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…posted rules. - Keep a digital copy of passport and travel insurance details. - Hawker centres and malls are reliable indoor breaks during heavy rain. ## Services travellers…"
+        },
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…### Day 7 — Flexible wrap-up Leave buffer time for shopping belts, a favourite hawker centre, or a missed museum. Revisit a neighbourhood café stretch or an indoor gallery…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…rong for half-day walks with frequent food stops. ## Food and local experiences Hawker centres are central to Singapore food culture — try neighbourhood centres for noodles,…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…. Many outdoor icons have nearby indoor museums useful in tropical rain. ## Eat Hawker centres (for example Maxwell Food Centre, Old Airport Road, Lau Pa Sat) are essential l…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …posted rules. - Keep a digital copy of passport and travel insurance details. - Hawker centres and malls are reliable i"
+    },
+    {
+      "id": "attr-lau-pa-sat",
+      "name": "Lau Pa Sat",
+      "class": "Attraction",
+      "aliases": [],
+      "tags": [
+        "food",
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…rain. ## Eat Hawker centres (for example Maxwell Food Centre, Old Airport Road, Lau Pa Sat) are essential local food experiences. Expect rice, noodle, and grilled dishes…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "attr-marina-waterfront",
+      "name": "Marina Bay waterfront",
+      "class": "Attraction",
+      "aliases": [
+        "bayfront promenade",
+        "waterfront promenades"
+      ],
+      "tags": [
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "located_in",
+          "target": "dist-marina-bay"
+        },
+        {
+          "type": "nearby",
+          "target": "attr-gardens-by-the-bay"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…and waterfront Marina Bay area highlights often include Gardens by the Bay, the bayfront promenade, and nearby museums. Evenings work well for skyline views. Mix outdoor boardwal…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…to-do/top-things-to-do/ ## Must-see and skyline experiences Gardens by the Bay, Marina Bay waterfront, and Merlion Park anchor many first visits. Pair outdoor photo stops with nearb…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …and waterfront Marina Bay area highlights often include Gardens by the Bay, the bayfront promenade, and nearby museums."
+    },
+    {
+      "id": "attr-maxwell-food-centre",
+      "name": "Maxwell Food Centre",
+      "class": "Attraction",
+      "aliases": [],
+      "tags": [
+        "food",
+        "indoor"
+      ],
+      "relations": [
+        {
+          "type": "located_in",
+          "target": "dist-chinatown"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…arby indoor museums useful in tropical rain. ## Eat Hawker centres (for example Maxwell Food Centre, Old Airport Road, Lau Pa Sat) are essential local food experiences. Expect ric…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "attr-merlion-park",
+      "name": "Merlion Park",
+      "class": "Attraction",
+      "aliases": [],
+      "tags": [
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "located_in",
+          "target": "dist-marina-bay"
+        },
+        {
+          "type": "nearby",
+          "target": "attr-gardens-by-the-bay"
+        },
+        {
+          "type": "nearby",
+          "target": "attr-marina-waterfront"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…Must-see and skyline experiences Gardens by the Bay, Marina Bay waterfront, and Merlion Park anchor many first visits. Pair outdoor photo stops with nearby indoor galleries…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…in cooler hours. ## See (attractions) Major sights include Gardens by the Bay, Merlion Park, the Singapore Botanic Gardens, Chinatown temples, and island attractions on Se…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-things-to-do (visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6): …Must-see and skyline experiences Gardens by the Bay, Marina Bay waterfront, and Merlion Park anchor many first visits. "
+    },
+    {
+      "id": "attr-museums",
+      "name": "Museums",
+      "class": "Attraction",
+      "aliases": [
+        "museum",
+        "indoor museums",
+        "indoor gallery"
+      ],
+      "tags": [
+        "culture",
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…point to transit cards, city maps, and attraction tickets. Plan indoor options (museums, malls, gardens under cover) for stormy afternoons so itineraries stay flexible…"
+        },
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…highlights often include Gardens by the Bay, the bayfront promenade, and nearby museums. Evenings work well for skyline views. Mix outdoor boardwalks with indoor clima…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…s by the Bay outdoor areas, waterfront promenades, park connectors | | Indoor | Museums, aquariums, malls, cultural centres | | Mixed | Heritage neighbourhoods with co…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…mples, and island attractions on Sentosa. Many outdoor icons have nearby indoor museums useful in tropical rain. ## Eat Hawker centres (for example Maxwell Food Centre…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …point to transit cards, city maps, and attraction tickets. Plan indoor options (museums, malls, gardens under cover) fo"
+    },
+    {
+      "id": "attr-old-airport-road",
+      "name": "Old Airport Road",
+      "class": "Attraction",
+      "aliases": [
+        "Old Airport Road Food Centre"
+      ],
+      "tags": [
+        "food"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…seful in tropical rain. ## Eat Hawker centres (for example Maxwell Food Centre, Old Airport Road, Lau Pa Sat) are essential local food experiences. Expect rice, noodle, and gri…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "attr-science-centres",
+      "name": "Science and discovery centres",
+      "class": "Attraction",
+      "aliases": [
+        "science centres"
+      ],
+      "tags": [
+        "family",
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…or time Sentosa and coastal parks suit outdoor play; choose indoor aquariums or science centres if weather turns. Wildlife and nature parks pair well with morning starts to av…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…and keep a covered café or museum as a weather pivot. ## Family-friendly picks Science and discovery centres, aquariums, and gentle park trails work well with children. Build shorter segme…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …or time Sentosa and coastal parks suit outdoor play; choose indoor aquariums or science centres if weather turns. Wildl"
+    },
+    {
+      "id": "attr-southern-ridges",
+      "name": "Southern Ridges",
+      "class": "Attraction",
+      "aliases": [
+        "Southern Ridges walks"
+      ],
+      "tags": [
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…oor alternatives during heavy rain. ## Nature and outdoor time East Coast Park, Southern Ridges walks, and island day trips suit outdoor energy. Start early, hydrate, and keep…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "dist-chinatown",
+      "name": "Chinatown",
+      "class": "District",
+      "aliases": [],
+      "tags": [
+        "culture",
+        "food",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "part_of_itinerary",
+          "target": "day-wv-2"
+        },
+        {
+          "type": "part_of_itinerary",
+          "target": "day-vs-3-4"
+        },
+        {
+          "type": "nearby",
+          "target": "dist-little-india"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…eaks. ### Days 3–4 — Heritage neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Gelam for temples, streetscapes, and local food. The…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…stops with nearby indoor galleries when humidity rises. ## Culture and heritage Chinatown, Little India, and Kampong Gelam offer temples, mosques, shophouses, and craft…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…ore’s visitor core includes the Colonial District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoods are comp…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …eaks. ### Days 3–4 — Heritage neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Ge"
+    },
+    {
+      "id": "dist-civic",
+      "name": "Civic District",
+      "class": "District",
+      "aliases": [
+        "Colonial District",
+        "Colonial District / Civic District"
+      ],
+      "tags": [
+        "culture",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…icts / neighbourhoods Singapore’s visitor core includes the Colonial District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa.…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "dist-east-coast",
+      "name": "East Coast Park",
+      "class": "District",
+      "aliases": [
+        "East Coast"
+      ],
+      "tags": [
+        "family",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…ls are useful indoor alternatives during heavy rain. ## Nature and outdoor time East Coast Park, Southern Ridges walks, and island day trips suit outdoor energy. Start early,…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "dist-kampong-glam",
+      "name": "Kampong Glam",
+      "class": "District",
+      "aliases": [
+        "Kampong Gelam"
+      ],
+      "tags": [
+        "culture",
+        "food",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "part_of_itinerary",
+          "target": "day-vs-3-4"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Gelam for temples, streetscapes, and local food. These districts are walkable hubs wi…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…eries when humidity rises. ## Culture and heritage Chinatown, Little India, and Kampong Gelam offer temples, mosques, shophouses, and craft shopping. Cultural precincts are…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…es the Colonial District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoods are compact and linked by MRT. China…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Gelam for temples, streetscapes,"
+    },
+    {
+      "id": "dist-little-india",
+      "name": "Little India",
+      "class": "District",
+      "aliases": [],
+      "tags": [
+        "culture",
+        "food",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "part_of_itinerary",
+          "target": "day-wv-2"
+        },
+        {
+          "type": "part_of_itinerary",
+          "target": "day-vs-3-4"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…ays 3–4 — Heritage neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Gelam for temples, streetscapes, and local food. These districts a…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…nearby indoor galleries when humidity rises. ## Culture and heritage Chinatown, Little India, and Kampong Gelam offer temples, mosques, shophouses, and craft shopping. Cult…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…or core includes the Colonial District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoods are compact and linked…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …ays 3–4 — Heritage neighbourhoods Explore cultural precincts such as Chinatown, Little India, and Kampong Gelam for tem"
+    },
+    {
+      "id": "dist-marina-bay",
+      "name": "Marina Bay",
+      "class": "District",
+      "aliases": [
+        "Marina Bay area",
+        "bayfront"
+      ],
+      "tags": [
+        "culture",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…singapore/ ## Day-wise shape (sample) ### Days 1–2 — Iconic city and waterfront Marina Bay area highlights often include Gardens by the Bay, the bayfront promenade, and n…"
+        },
+        {
+          "doc_id": "visitsg-things-to-do__visit-singapore-top-things-to-do__cf6a4ae4b6",
+          "source_id": "visitsg-things-to-do",
+          "url": "https://www.visitsingapore.com/things-to-do/top-things-to-do/",
+          "snippet": "…to-do/top-things-to-do/ ## Must-see and skyline experiences Gardens by the Bay, Marina Bay waterfront, and Merlion Park anchor many first visits. Pair outdoor photo stops…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…hoods Singapore’s visitor core includes the Colonial District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoo…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …singapore/ ## Day-wise shape (sample) ### Days 1–2 — Iconic city and waterfront Marina Bay area highlights often includ"
+    },
+    {
+      "id": "dist-orchard",
+      "name": "Orchard Road",
+      "class": "District",
+      "aliases": [
+        "Orchard"
+      ],
+      "tags": [
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…l District / Civic District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoods are compact and linked by MRT. Chinatown and Littl…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "dist-sentosa",
+      "name": "Sentosa",
+      "class": "District",
+      "aliases": [],
+      "tags": [
+        "family",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "part_of_itinerary",
+          "target": "day-wv-3"
+        },
+        {
+          "type": "part_of_itinerary",
+          "target": "day-vs-5-6"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…d many covered walkways. ### Days 5–6 — Nature and family-friendly outdoor time Sentosa and coastal parks suit outdoor play; choose indoor aquariums or science centres…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…District, Marina Bay, Chinatown, Little India, Kampong Glam, Orchard Road, and Sentosa. Neighbourhoods are compact and linked by MRT. Chinatown and Little India conce…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …d many covered walkways. ### Days 5–6 — Nature and family-friendly outdoor time Sentosa and coastal parks suit outdoor "
+    },
+    {
+      "id": "day-vs-1-2",
+      "name": "7-day sample — Days 1–2 (iconic waterfront)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Days 1–2"
+      ],
+      "tags": [
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…ng-to-singapore/itineraries/7-days-in-singapore/ ## Day-wise shape (sample) ### Days 1–2 — Iconic city and waterfront Marina Bay area highlights often include Gardens b…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-vs-3-4",
+      "name": "7-day sample — Days 3–4 (heritage neighbourhoods)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Days 3–4"
+      ],
+      "tags": [
+        "culture",
+        "food"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…rdwalks with indoor climate-controlled attractions when heat or rain peaks. ### Days 3–4 — Heritage neighbourhoods Explore cultural precincts such as Chinatown, Little…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-vs-5-6",
+      "name": "7-day sample — Days 5–6 (nature / family)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Days 5–6"
+      ],
+      "tags": [
+        "family",
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…hese districts are walkable hubs with MRT access and many covered walkways. ### Days 5–6 — Nature and family-friendly outdoor time Sentosa and coastal parks suit outdoo…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-vs-7",
+      "name": "7-day sample — Day 7 (flexible wrap-up)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Day 7"
+      ],
+      "tags": [
+        "food",
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…dlife and nature parks pair well with morning starts to avoid mid-day heat. ### Day 7 — Flexible wrap-up Leave buffer time for shopping belts, a favourite hawker cen…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-wv-1",
+      "name": "Three-day sketch — Day 1 (Marina Bay)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Day 1"
+      ],
+      "tags": [
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [
+        {
+          "type": "nearby",
+          "target": "dist-marina-bay"
+        }
+      ],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…orms. English signage is common on transit and attractions. ## Three-day sketch Day 1: Marina Bay + Gardens by the Bay (mix outdoor and indoor conservatories). Day 2…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-wv-2",
+      "name": "Three-day sketch — Day 2 (heritage walk)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Day 2"
+      ],
+      "tags": [
+        "culture",
+        "food"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…Day 1: Marina Bay + Gardens by the Bay (mix outdoor and indoor conservatories). Day 2: Chinatown and Little India walking loops with hawker meals. Day 3: Botanic Gar…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "day-wv-3",
+      "name": "Three-day sketch — Day 3 (gardens or Sentosa)",
+      "class": "ItineraryDay",
+      "aliases": [
+        "Day 3"
+      ],
+      "tags": [
+        "family",
+        "indoor",
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…ervatories). Day 2: Chinatown and Little India walking loops with hawker meals. Day 3: Botanic Gardens or Sentosa; keep an indoor museum swap if weather turns."
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "tip-dress-modestly",
+      "name": "Dress modestly at religious sites",
+      "class": "Tip",
+      "aliases": [],
+      "tags": [
+        "culture"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…fe and practical tips Singapore is generally very safe. Tap water is drinkable. Dress modestly at religious sites. Carry an umbrella for short storms. English signage is common on transit and a…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "tip-heat",
+      "name": "Prefer mornings and evenings for outdoor sightseeing",
+      "class": "Tip",
+      "aliases": [
+        "mid-day heat",
+        "Outdoor sightseeing is comfortable in mornings"
+      ],
+      "tags": [
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…air-conditioning. Outdoor sightseeing is comfortable in mornings and evenings; mid-day heat is intense. ## Language and connectivity English is widely used alongside Malay…"
+        },
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…weather turns. Wildlife and nature parks pair well with morning starts to avoid mid-day heat. ### Day 7 — Flexible wrap-up Leave buffer time for shopping belts, a favourite…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …air-conditioning. Outdoor sightseeing is comfortable in mornings and evenings; mid-day heat is intense. ## Language and"
+    },
+    {
+      "id": "tip-rain-swap",
+      "name": "Keep one indoor rain-swap option per day",
+      "class": "Tip",
+      "aliases": [
+        "rain swap",
+        "indoor options"
+      ],
+      "tags": [
+        "indoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…concierges can point to transit cards, city maps, and attraction tickets. Plan indoor options (museums, malls, gardens under cover) for stormy afternoons so itineraries stay…"
+        },
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…ly itineraries benefit from shorter hops and scheduled rest breaks. - Keep one “rain swap” indoor option per day (museum, mall, cultural centre)."
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …concierges can point to transit cards, city maps, and attraction tickets. Plan indoor options (museums, malls, gardens "
+    },
+    {
+      "id": "tip-tap-water",
+      "name": "Tap water is drinkable",
+      "class": "Tip",
+      "aliases": [
+        "Tap water is generally potable",
+        "Tap water is drinkable"
+      ],
+      "tags": [],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…simplify travel if you plan dense sightseeing days. ## Practical visitor tips - Tap water is generally potable; carry a refillable bottle. - Queue etiquette and orderly boarding are expected…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…oned backups. ## Stay safe and practical tips Singapore is generally very safe. Tap water is drinkable. Dress modestly at religious sites. Carry an umbrella for short storms. English…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …simplify travel if you plan dense sightseeing days. ## Practical visitor tips - Tap water is generally potable; carry a"
+    },
+    {
+      "id": "tip-umbrella",
+      "name": "Carry an umbrella for short storms",
+      "class": "Tip",
+      "aliases": [
+        "umbrella"
+      ],
+      "tags": [
+        "outdoor"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…rief tropical showers are common; pack light breathable clothing, sunscreen, an umbrella, and indoor layers for strong air-conditioning. Outdoor sightseeing is comforta…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…generally very safe. Tap water is drinkable. Dress modestly at religious sites. Carry an umbrella for short storms. English signage is common on transit and attractions. ## Three-day sketch Day…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …rief tropical showers are common; pack light breathable clothing, sunscreen, an umbrella, and indoor layers for strong "
+    },
+    {
+      "id": "tx-bus",
+      "name": "Bus",
+      "class": "TransportMode",
+      "aliases": [
+        "Buses",
+        "bus network"
+      ],
+      "tags": [
+        "transport"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…y numbers and hotel contacts offline as a backup. ## Getting around The MRT and bus network covers major attractions. Contactless bank cards and stored-value cards…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…tions. ## Get around The Mass Rapid Transit (MRT) is the backbone for tourists. Buses fill gaps. Taxis and ride-hailing are widely available. EZ-Link / NETS FlashP…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …y numbers and hotel contacts offline as a backup. ## Getting around The MRT and bus network covers major attractions. C"
+    },
+    {
+      "id": "tx-mrt",
+      "name": "MRT",
+      "class": "TransportMode",
+      "aliases": [
+        "Mass Rapid Transit",
+        "MRT line"
+      ],
+      "tags": [
+        "transport"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…emergency numbers and hotel contacts offline as a backup. ## Getting around The MRT and bus network covers major attractions. Contactless bank cards and stored-val…"
+        },
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…r temples, streetscapes, and local food. These districts are walkable hubs with MRT access and many covered walkways. ### Days 5–6 — Nature and family-friendly out…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…mpong Glam, Orchard Road, and Sentosa. Neighbourhoods are compact and linked by MRT. Chinatown and Little India concentrate heritage temples and street food; Marin…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …emergency numbers and hotel contacts offline as a backup. ## Getting around The MRT and bus network covers major attrac"
+    },
+    {
+      "id": "tx-taxi",
+      "name": "Taxi / ride-hailing",
+      "class": "TransportMode",
+      "aliases": [
+        "Taxis",
+        "ride-hailing"
+      ],
+      "tags": [
+        "transport"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…ctions. Contactless bank cards and stored-value cards work on public transport. Taxis and ride-hailing are plentiful. For multi-day stays, a tourist pass can simplif…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…und The Mass Rapid Transit (MRT) is the backbone for tourists. Buses fill gaps. Taxis and ride-hailing are widely available. EZ-Link / NETS FlashPay / contactless ba…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-essentials (visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39): …ctions. Contactless bank cards and stored-value cards work on public transport. Taxis and ride-hailing are plentiful. F"
+    },
+    {
+      "id": "tx-tourist-pass",
+      "name": "Tourist pass",
+      "class": "TransportMode",
+      "aliases": [
+        "tourist pass"
+      ],
+      "tags": [
+        "transport"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-essentials__visit-singapore-plan-your-trip-travellers-essent__d8d1386b39",
+          "source_id": "visitsg-essentials",
+          "url": "https://www.visitsingapore.com/mice/en/tools-and-resources/plan-your-trip/",
+          "snippet": "…public transport. Taxis and ride-hailing are plentiful. For multi-day stays, a tourist pass can simplify travel if you plan dense sightseeing days. ## Practical visitor ti…"
+        }
+      ],
+      "spot_checked": false,
+      "spot_check_notes": ""
+    },
+    {
+      "id": "tx-walk",
+      "name": "Walking",
+      "class": "TransportMode",
+      "aliases": [
+        "walkable",
+        "Walking"
+      ],
+      "tags": [
+        "outdoor",
+        "transport"
+      ],
+      "relations": [],
+      "evidence": [
+        {
+          "doc_id": "visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06",
+          "source_id": "visitsg-itineraries",
+          "url": "https://www.visitsingapore.com/travel-tips/travelling-to-singapore/itineraries/7-days-in-singapore/",
+          "snippet": "…nd Kampong Gelam for temples, streetscapes, and local food. These districts are walkable hubs with MRT access and many covered walkways. ### Days 5–6 — Nature and famil…"
+        },
+        {
+          "doc_id": "wikivoyage-singapore__singapore-travel-guide-at-wikivoyage__2e2e598739",
+          "source_id": "wikivoyage-singapore",
+          "url": "https://en.wikivoyage.org/wiki/Singapore",
+          "snippet": "…ely available. EZ-Link / NETS FlashPay / contactless bank cards simplify fares. Walking between clustered sights downtown is practical in cooler hours. ## See (attract…"
+        }
+      ],
+      "spot_checked": true,
+      "spot_check_notes": "Verified mention in visitsg-itineraries (visitsg-itineraries__visit-singapore-7-days-in-singapore-itinerary__1959850a06): …nd Kampong Gelam for temples, streetscapes, and local food. These districts are walkable hubs with MRT access and many "
+    }
+  ]
+}

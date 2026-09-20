@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nagp-aiml.local/ontology/entity.schema.json",
+  "title": "TravelOntologyEntity",
+  "type": "object",
+  "required": ["id", "name", "class", "tags", "relations", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z]+-[a-z0-9-]+$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "class": {
+      "type": "string",
+      "enum": ["Attraction", "District", "ItineraryDay", "TransportMode", "Tip"]
+    },
+    "aliases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["indoor", "outdoor", "family", "culture", "food", "transport"]
+      },
+      "uniqueItems": true
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "target"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["located_in", "suitable_for", "nearby", "part_of_itinerary"]
+          },
+          "target": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["doc_id", "source_id", "url", "snippet"],
+        "additionalProperties": false,
+        "properties": {
+          "doc_id": { "type": "string" },
+          "source_id": { "type": "string" },
+          "url": { "type": "string" },
+          "snippet": { "type": "string" }
+        }
+      }
+    },
+    "spot_checked": { "type": "boolean" },
+    "spot_check_notes": { "type": "string" }
+  }
+}

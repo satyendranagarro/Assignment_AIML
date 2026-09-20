@@ -18,12 +18,16 @@ Fetch registered seed URLs into `data/raw/<source_id>/` with citation sidecars, 
 
 ## Crawl policy
 
-1. **Seeds only** — no link spidering; fetch each `seed_urls` entry.
-2. **Allowlist** — host must match `allowlist_hosts` (www / bare variants accepted).
-3. **robots.txt** — respected when `defaults.respect_robots_txt: true`. If `robots.txt` is missing or returns 403/404, fetches are allowed (same as urllib when no robots file exists).
-4. **Throttle** — `defaults.request_delay_seconds` between requests.
-5. **ARR sources** (Visit Singapore) — store educational **Markdown excerpts**, not full HTML mirrors.
-6. **Fallback** — if fetch fails or robots block, copy `data/manual/<source_id>/` into raw.
+1. **Allowlisted BFS** — start from each `seed_urls` entry; follow same-host links.
+   - `defaults.max_depth: null` (or CLI `--max-depth none`) = unbounded depth (“whole site”).
+   - `defaults.max_pages: 100` (or CLI `--max-pages`) = hard cap of attempts per source.
+   - `--max-depth 0` = seeds only (no link follow).
+2. **Allowlist** — host must match `allowlist_hosts` (www / bare variants accepted). Off-host links are ignored.
+3. **Singapore path scope** — optional `url_path_prefixes` / `url_path_contains` keep BFS on destination pages (e.g. Wikivoyage `/wiki/Singapore…` or path containing `Singapore`). Empty = host-only filter (Visit Singapore site is already destination-bound).
+4. **robots.txt** — respected when `defaults.respect_robots_txt: true`. If `robots.txt` is missing or returns 403/404, fetches are allowed (same as urllib when no robots file exists).
+5. **Throttle** — `defaults.request_delay_seconds` between requests.
+6. **ARR sources** (Visit Singapore) — store educational **Markdown excerpts**, not full HTML mirrors. Link discovery still uses the original HTML.
+7. **Fallback** — if fetch fails or robots block, copy `data/manual/<source_id>/` into raw.
 
 ### Sidecar contract
 
@@ -61,8 +65,11 @@ pip install -r requirements.txt
 # Reproducible offline path (manual packs only)
 python scripts/crawl.py --force-manual --update-matrix
 
-# Live allowlisted crawl (manual fallback on failure)
+# Live allowlisted BFS crawl (unbounded depth, max_pages from yaml; manual fallback)
 python scripts/crawl.py --update-matrix
+
+# Seeds only
+python scripts/crawl.py --max-depth 0 --update-matrix
 
 # Re-score existing raw/processed
 python scripts/crawl.py --gate-only
@@ -70,17 +77,17 @@ python scripts/crawl.py --gate-only
 pytest tests/test_phase1_data.py tests/test_phase2_crawl.py -q
 ```
 
-Useful flags: `--source-id <id>`, `--no-manual-fallback`, `--skip-normalize`, `--json`.
+Useful flags: `--source-id <id>`, `--max-depth`, `--max-pages`, `--no-manual-fallback`, `--skip-normalize`, `--json`.
 
 ## Exit criteria (gate → Phase 3)
 
-- [x] Allowlisted seed crawl CLI with robots + delay
+- [x] Allowlisted BFS crawl CLI with robots + delay + max_depth/max_pages
 - [x] Raw dumps retain title + URL sidecars
 - [x] Manual dumps for Visit Singapore (and Wikivoyage offline fallback)
 - [x] Thin/SPA or HTTP-blocked fetches fall back to manual packs
 - [x] Topic buckets evaluated; required topics green after crawl/normalize
 - [x] Crawl reproducible via `--force-manual` or live seeds + fallback
-- [x] Tests cover allowlist, excerpt mode, robots→manual fallback, matrix update
+- [x] Tests cover allowlist, excerpt mode, robots→manual fallback, BFS depth/page caps, matrix update
 
 ### Decision table (Phase 2 → 3)
 

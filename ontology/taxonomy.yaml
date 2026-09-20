@@ -1,0 +1,53 @@
+# Phase 3 ontology taxonomy — Singapore travel KB
+destination: Singapore
+version: "1.0"
+updated: "2026-09-20"
+
+classes:
+  - id: Attraction
+    description: Named place of interest (sight, park, museum, hawker centre, etc.)
+  - id: District
+    description: Neighbourhood or precinct visitors treat as a area unit
+  - id: ItineraryDay
+    description: Day-shaped plan segment (day N of a sample itinerary)
+  - id: TransportMode
+    description: Way of getting around (MRT, bus, taxi, walk, etc.)
+  - id: Tip
+    description: Practical or cultural guidance item (not a place)
+
+relations:
+  - id: located_in
+    domain: [Attraction, Tip]
+    range: [District]
+    description: Entity sits primarily in a district / precinct
+  - id: suitable_for
+    domain: [Attraction, District, ItineraryDay]
+    range: [Tag]
+    description: Audience or condition fit (family, rain-day, etc.) — stored as tags in practice
+  - id: nearby
+    domain: [Attraction, District]
+    range: [Attraction, District]
+    description: Short transit / walking adjacency useful for day planning
+  - id: part_of_itinerary
+    domain: [Attraction, District]
+    range: [ItineraryDay]
+    description: Attraction or area featured on a sample day
+
+tags:
+  - id: indoor
+    description: Suitable when rain / heat pushes activities indoors
+  - id: outdoor
+    description: Open-air activity or sight
+  - id: family
+    description: Works well with children
+  - id: culture
+    description: Heritage, religion, arts, or cultural precinct
+  - id: food
+    description: Dining or hawker-focused
+  - id: transport
+    description: Getting-around related
+
+# Canonical aliases merged before emit (left = keep id)
+merge_aliases:
+  kampong-glam: [kampong-gelam, "Kampong Gelam", "Kampong Glam"]
+  civic-district: ["Colonial District", "Colonial District / Civic District", "Civic District"]

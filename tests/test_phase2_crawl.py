@@ -8,7 +8,15 @@ from unittest.mock import MagicMock
 import httpx
 
 from src.crawl.buckets import evaluate_topic_buckets, update_matrix_statuses
-from src.crawl.fetch import SeedFetcher, host_allowed, html_to_excerpt, prefers_excerpt
+from src.crawl.fetch import (
+    SeedFetcher,
+    extract_links,
+    host_allowed,
+    html_to_excerpt,
+    normalize_crawl_url,
+    path_allowed,
+    prefers_excerpt,
+)
 from src.crawl.gate import evaluate_phase2_gate
 from src.crawl.runner import crawl_all, crawl_source
 from src.crawl.store import copy_manual_dumps, save_raw_document
@@ -236,3 +244,238 @@ def test_crawl_script_force_manual_writes_raw(tmp_path: Path):
     )
     assert code in {0, 1}
     assert any((tmp_path / "raw").iterdir())
+
+
+def test_normalize_crawl_url_skips_noise():
+    assert normalize_crawl_url("https://example.com/a#frag") == "https://example.com/a"
+    assert normalize_crawl_url("mailto:x@y.com") is None
+    assert normalize_crawl_url("https://example.com/pic.png") is None
+    assert normalize_crawl_url("https://en.wikivoyage.org/wiki/Special:Search") is None
+    assert normalize_crawl_url("https://en.wikivoyage.org/wiki/Singapore?action=edit") is None
+
+
+def test_extract_links_filters_allowlist_and_noise():
+    html = """
+    <html><body>
+      <a href="/next">next</a>
+      <a href="https://evil.com/x">evil</a>
+      <a href="mailto:a@b.com">mail</a>
+      <a href="/photo.jpg">img</a>
+      <a href="https://example.com/ok#section">ok</a>
+    </body></html>
+    """
+    links = extract_links(html, "https://example.com/start", allowlist=("example.com",))
+    assert "https://example.com/next" in links
+    assert "https://example.com/ok" in links
+    assert all("evil.com" not in u for u in links)
+    assert all(not u.endswith(".jpg") for u in links)
+
+
+def test_path_allowed_singapore_scope():
+    assert path_allowed(
+        "https://en.wikivoyage.org/wiki/Singapore/Chinatown",
+        prefixes=("/wiki/Singapore",),
+        contains=("Singapore",),
+    )
+    assert path_allowed(
+        "https://en.wikivoyage.org/wiki/Three_days_in_Singapore",
+        prefixes=("/wiki/Singapore",),
+        contains=("Singapore",),
+    )
+    assert not path_allowed(
+        "https://en.wikivoyage.org/wiki/Japan",
+        prefixes=("/wiki/Singapore",),
+        contains=("Singapore",),
+    )
+    # Empty rules → allow
+    assert path_allowed("https://www.visitsingapore.com/anywhere")
+
+
+def test_extract_links_singapore_path_scope():
+    html = """
+    <html><body>
+      <a href="/wiki/Singapore/Orchard">orchard</a>
+      <a href="/wiki/Three_days_in_Singapore">itinerary</a>
+      <a href="/wiki/Japan">japan</a>
+      <a href="/wiki/Thailand">thailand</a>
+    </body></html>
+    """
+    links = extract_links(
+        html,
+        "https://en.wikivoyage.org/wiki/Singapore",
+        allowlist=("en.wikivoyage.org",),
+        path_prefixes=("/wiki/Singapore",),
+        path_contains=("Singapore",),
+    )
+    assert "https://en.wikivoyage.org/wiki/Singapore/Orchard" in links
+    assert "https://en.wikivoyage.org/wiki/Three_days_in_Singapore" in links
+    assert all("/wiki/Japan" not in u for u in links)
+    assert all("/wiki/Thailand" not in u for u in links)
+
+
+def test_bfs_skips_non_singapore_wikivoyage_links(tmp_path: Path):
+    source = _sample_source(
+        seed_urls=("https://en.wikivoyage.org/wiki/Singapore",),
+        allowlist_hosts=("en.wikivoyage.org",),
+        url_path_prefixes=("/wiki/Singapore",),
+        url_path_contains=("Singapore",),
+    )
+    pages = {
+        "https://en.wikivoyage.org/wiki/Singapore": (
+            "<html><body><p>"
+            + ("Singapore guide " * 80)
+            + '</p><a href="/wiki/Japan">jp</a>'
+            '<a href="/wiki/Singapore/Chinatown">cn</a></body></html>'
+        ),
+        "https://en.wikivoyage.org/wiki/Singapore/Chinatown": (
+            "<html><body><p>" + ("Chinatown " * 80) + "</p></body></html>"
+        ),
+        "https://en.wikivoyage.org/wiki/Japan": (
+            "<html><body><p>" + ("Japan " * 80) + "</p></body></html>"
+        ),
+    }
+
+    def _get(url: str) -> httpx.Response:
+        return httpx.Response(200, text=pages[url], request=httpx.Request("GET", url))
+
+    client = MagicMock()
+    client.get.side_effect = _get
+    fetcher = SeedFetcher(
+        user_agent="test",
+        delay_seconds=0,
+        respect_robots=False,
+        client=client,
+    )
+    result = crawl_source(
+        source,
+        fetcher=fetcher,
+        raw_dir=tmp_path / "raw",
+        use_manual_fallback=False,
+        max_depth=None,
+        max_pages=10,
+    )
+    assert result.ok
+    fetched_urls = [s.url for s in result.seeds if s.ok]
+    assert "https://en.wikivoyage.org/wiki/Singapore" in fetched_urls
+    assert "https://en.wikivoyage.org/wiki/Singapore/Chinatown" in fetched_urls
+    assert all("Japan" not in u for u in fetched_urls)
+    assert client.get.call_count == 2
+
+
+def test_bfs_max_depth_zero_is_seeds_only(tmp_path: Path):
+    source = _sample_source(
+        seed_urls=("https://example.com/seed",),
+        allowlist_hosts=("example.com",),
+    )
+    pages = {
+        "https://example.com/seed": (
+            "<html><body><p>"
+            + ("content " * 80)
+            + '</p><a href="/child">child</a></body></html>'
+        ),
+        "https://example.com/child": (
+            "<html><body><p>" + ("child page " * 80) + "</p></body></html>"
+        ),
+    }
+
+    def _get(url: str) -> httpx.Response:
+        body = pages[url]
+        return httpx.Response(200, text=body, request=httpx.Request("GET", url))
+
+    client = MagicMock()
+    client.get.side_effect = _get
+    fetcher = SeedFetcher(
+        user_agent="test",
+        delay_seconds=0,
+        respect_robots=False,
+        client=client,
+    )
+    result = crawl_source(
+        source,
+        fetcher=fetcher,
+        raw_dir=tmp_path / "raw",
+        use_manual_fallback=False,
+        max_depth=0,
+        max_pages=10,
+    )
+    assert result.ok
+    assert result.pages_saved == 1
+    assert result.pages_attempted == 1
+    assert client.get.call_count == 1
+
+
+def test_bfs_unbounded_respects_max_pages(tmp_path: Path):
+    source = _sample_source(
+        seed_urls=("https://example.com/p0",),
+        allowlist_hosts=("example.com",),
+    )
+
+    def _page(n: int) -> str:
+        nxt = f'<a href="/p{n + 1}">next</a>' if n < 20 else ""
+        return f"<html><body><p>{'page content ' * 80}{n}</p>{nxt}</body></html>"
+
+    def _get(url: str) -> httpx.Response:
+        idx = int(url.rsplit("p", 1)[-1])
+        return httpx.Response(200, text=_page(idx), request=httpx.Request("GET", url))
+
+    client = MagicMock()
+    client.get.side_effect = _get
+    fetcher = SeedFetcher(
+        user_agent="test",
+        delay_seconds=0,
+        respect_robots=False,
+        client=client,
+    )
+    result = crawl_source(
+        source,
+        fetcher=fetcher,
+        raw_dir=tmp_path / "raw",
+        use_manual_fallback=False,
+        max_depth=None,
+        max_pages=3,
+    )
+    assert result.ok
+    assert result.pages_attempted == 3
+    assert result.pages_saved == 3
+    assert client.get.call_count == 3
+
+
+def test_bfs_arr_saves_markdown_excerpt(tmp_path: Path):
+    source = _sample_source(
+        license="All rights reserved — fair educational excerpt only",
+        seed_urls=("https://example.com/seed",),
+    )
+    html = (
+        "<html><head><title>Official</title></head>"
+        "<body><p>"
+        + ("Travel tips " * 100)
+        + '</p><a href="https://evil.com/x">x</a>'
+        '<a href="/more">more</a></body></html>'
+    )
+    child = "<html><body><p>" + ("More tips " * 100) + "</p></body></html>"
+
+    def _get(url: str) -> httpx.Response:
+        body = html if url.endswith("/seed") else child
+        return httpx.Response(200, text=body, request=httpx.Request("GET", url))
+
+    client = MagicMock()
+    client.get.side_effect = _get
+    fetcher = SeedFetcher(
+        user_agent="test",
+        delay_seconds=0,
+        respect_robots=False,
+        client=client,
+    )
+    result = crawl_source(
+        source,
+        fetcher=fetcher,
+        raw_dir=tmp_path / "raw",
+        use_manual_fallback=False,
+        max_depth=1,
+        max_pages=10,
+    )
+    assert result.ok
+    assert result.pages_saved == 2
+    saved = list((tmp_path / "raw" / "demo-source").glob("*.md"))
+    assert saved
+    assert all(s.fetch_mode == "excerpt" for s in result.seeds if s.ok)

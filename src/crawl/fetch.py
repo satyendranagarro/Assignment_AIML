@@ -1,4 +1,4 @@
-"""HTTP fetch helpers for allowlisted seed URLs."""
+"""HTTP fetch helpers for allowlisted seed / BFS crawl URLs."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import re
 import time
 from dataclasses import dataclass
 from typing import Callable
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urldefrag, urljoin, urlparse, urlunparse
 
 import httpx
 from bs4 import BeautifulSoup
@@ -19,6 +19,32 @@ from src.data.models import Source
 DEFAULT_EXCERPT_CHARS = 12_000
 # Below this, treat a "successful" fetch as thin and prefer manual fallback.
 THIN_BODY_CHARS = 500
+
+_SKIP_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".ico",
+    ".pdf",
+    ".zip",
+    ".gz",
+    ".mp3",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".css",
+    ".js",
+    ".json",
+    ".xml",
+    ".rss",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot",
+}
 
 
 @dataclass
@@ -33,6 +59,8 @@ class FetchOutcome:
     error: str | None = None
     blocked_by_robots: bool = False
     used_excerpt: bool = False
+    # Original HTML for link discovery when body was converted to an excerpt.
+    source_html: str | None = None
 
 
 def host_allowed(url: str, allowlist: tuple[str, ...] | list[str]) -> bool:
@@ -44,6 +72,87 @@ def host_allowed(url: str, allowlist: tuple[str, ...] | list[str]) -> bool:
     allowed = {h.lower() for h in allowlist}
     return host in allowed or bare in allowed or f"www.{bare}" in allowed
 
+
+def path_allowed(
+    url: str,
+    *,
+    prefixes: tuple[str, ...] | list[str] | None = None,
+    contains: tuple[str, ...] | list[str] | None = None,
+) -> bool:
+    """True if URL path matches destination scoping rules.
+
+    Empty prefixes and contains → allow (host filter only).
+    Otherwise path must start with a prefix OR contain any substring (case-insensitive).
+    """
+    prefixes = tuple(prefixes or ())
+    contains = tuple(contains or ())
+    if not prefixes and not contains:
+        return True
+    path = urlparse(url).path or "/"
+    path_lower = path.lower()
+    for prefix in prefixes:
+        if path.startswith(prefix) or path_lower.startswith(prefix.lower()):
+            return True
+    for needle in contains:
+        if needle.lower() in path_lower:
+            return True
+    return False
+
+
+def normalize_crawl_url(url: str) -> str | None:
+    """Return a canonical http(s) URL without fragment, or None if unusable."""
+    raw = (url or "").strip()
+    if not raw or raw.startswith(("#", "javascript:", "mailto:", "tel:", "data:")):
+        return None
+    cleaned, _frag = urldefrag(raw)
+    parsed = urlparse(cleaned)
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    if not parsed.netloc:
+        return None
+    path = parsed.path or "/"
+    lower_path = path.lower()
+    for ext in _SKIP_EXTENSIONS:
+        if lower_path.endswith(ext):
+            return None
+    # MediaWiki noise
+    if "/Special:" in path or "/File:" in path or "/file:" in path:
+        return None
+    qs = parse_qs(parsed.query, keep_blank_values=True)
+    if "action" in qs:
+        return None
+    return urlunparse(
+        (parsed.scheme.lower(), parsed.netloc.lower(), path, "", parsed.query, "")
+    )
+
+
+def extract_links(
+    html: str,
+    base_url: str,
+    *,
+    allowlist: tuple[str, ...] | list[str] | None = None,
+    path_prefixes: tuple[str, ...] | list[str] | None = None,
+    path_contains: tuple[str, ...] | list[str] | None = None,
+) -> list[str]:
+    """Extract absolute links; optionally filter by host and destination path rules."""
+    if not html or not html.lstrip().startswith("<"):
+        return []
+    soup = BeautifulSoup(html, "lxml")
+    seen: set[str] = set()
+    out: list[str] = []
+    for tag in soup.find_all("a", href=True):
+        href = str(tag.get("href") or "").strip()
+        absolute = urljoin(base_url, href)
+        normalized = normalize_crawl_url(absolute)
+        if not normalized or normalized in seen:
+            continue
+        if allowlist is not None and not host_allowed(normalized, allowlist):
+            continue
+        if not path_allowed(normalized, prefixes=path_prefixes, contains=path_contains):
+            continue
+        seen.add(normalized)
+        out.append(normalized)
+    return out
 
 def extract_title(html: str, fallback: str) -> str:
     soup = BeautifulSoup(html, "lxml")
@@ -140,6 +249,22 @@ class SeedFetcher:
                 error=f"host not allowlisted for {source.id}",
             )
 
+        if not path_allowed(
+            url,
+            prefixes=source.url_path_prefixes,
+            contains=source.url_path_contains,
+        ):
+            return FetchOutcome(
+                url=url,
+                ok=False,
+                status_code=None,
+                content_type=None,
+                body="",
+                title=source.citation.title,
+                extension=".html",
+                error=f"path outside Singapore scope for {source.id}",
+            )
+
         if self.respect_robots and not self.robots.allowed(url, client=self.client):
             return FetchOutcome(
                 url=url,
@@ -194,6 +319,7 @@ class SeedFetcher:
                 title=title,
                 extension=".md",
                 used_excerpt=True,
+                source_html=raw,
             )
 
         return FetchOutcome(
@@ -205,4 +331,5 @@ class SeedFetcher:
             title=title,
             extension=".html",
             used_excerpt=False,
+            source_html=raw,
         )
