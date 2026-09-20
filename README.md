@@ -179,6 +179,9 @@ docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
 
 ### Sample questions and demo
 
+<video src="docs/demo/demo_aiml_480.mov" controls width="100%" title="AI Travel Planning Assistant demo"></video>
+
+- Demo video: [`docs/demo/demo_aiml_480.mov`](docs/demo/demo_aiml_480.mov)  
 - Sample Q&A shapes: [`docs/SAMPLE_QA.md`](docs/SAMPLE_QA.md)  
 - Live demo checklist: [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md)  
 
