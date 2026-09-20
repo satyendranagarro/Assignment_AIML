@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import time
 from typing import Any
 
@@ -82,26 +83,11 @@ class RAGKnowledgeAgent:
         citations = _unique_citations(hits)
         context = format_hit_context(hits)
         notes = session_notes(state)
-        # Deterministic KB excerpt block (always)
-        kb_block = LabeledBlock(
-            kind="kb_fact",
-            text=_summarize_hits(hits, query=query, state=state),
-            citations=citations,
-        )
-
-        blocks: list[LabeledBlock] = [kb_block]
-        if _looks_like_itinerary(query):
-            from src.agents.planner_agent import _day_wise_plan
-
-            blocks.append(
-                LabeledBlock(
-                    kind="llm_suggestion",
-                    text=_day_wise_plan(hits, state, None),
-                )
-            )
-
+        blocks: list[LabeledBlock] = []
         llm_text = ""
         provider_used = self.provider
+        llm_error: str | None = None
+
         try:
             llm_text, provider_used = invoke_chat(
                 [
@@ -111,11 +97,20 @@ class RAGKnowledgeAgent:
                 provider=self.provider,
             )
         except ConfigError as exc:
+            llm_error = str(exc)
             err = LabeledBlock(
                 kind="error",
                 text=f"LLM configuration error: {exc}. No answer fabricated.",
             )
-            blocks = blocks + [err]
+            # Still return grounded fallback from KB so the user sees facts.
+            blocks = [
+                LabeledBlock(
+                    kind="kb_fact",
+                    text=_summarize_hits(hits, query=query, state=state),
+                    citations=citations,
+                ),
+                err,
+            ]
             return AgentResponse(
                 intent="rag_only",
                 agent=self.agent_id,
@@ -123,30 +118,46 @@ class RAGKnowledgeAgent:
                 blocks=blocks,
                 citations=citations,
                 used_rag=True,
-                error=str(exc),
+                error=llm_error,
                 provider=provider_used,
             )
         except Exception as exc:  # noqa: BLE001
             llm_text = ""
             log_event(
                 "llm.error",
-                "RAG LLM failed; returning KB excerpts only",
+                "RAG LLM failed; returning KB summary only",
                 agent=self.agent_id,
                 error=str(exc)[:200],
                 status="error",
             )
 
+        # Grounded chat answer lives in [KB fact] (assignment label + natural prose).
         if llm_text and llm_text != "[fake LLM response]":
-            blocks.append(LabeledBlock(kind="llm_suggestion", text=llm_text))
-        elif llm_text == "[fake LLM response]" and not any(
-            b.kind == "llm_suggestion" for b in blocks
-        ):
+            kb_text = llm_text.strip()
+        else:
+            kb_text = _summarize_hits(hits, query=query, state=state)
+
+        blocks.append(
+            LabeledBlock(kind="kb_fact", text=kb_text, citations=citations)
+        )
+
+        if _looks_like_itinerary(query):
+            from src.agents.planner_agent import _day_wise_plan
+
+            blocks.append(
+                LabeledBlock(
+                    kind="llm_suggestion",
+                    text=_day_wise_plan(hits, state, None),
+                )
+            )
+        elif llm_text == "[fake LLM response]":
+            # Offline / fake provider: short planning nudge without dumping excerpts again.
             blocks.append(
                 LabeledBlock(
                     kind="llm_suggestion",
                     text=(
-                        "Based on the cited KB excerpts above, prioritize well-documented "
-                        "Singapore places and transport tips. Verify details against the sources."
+                        "Use the places above as a starting list, then group nearby "
+                        "sights into half-day walks and verify details on the cited pages."
                     ),
                 )
             )
@@ -173,8 +184,6 @@ class RAGKnowledgeAgent:
 
 
 def _looks_like_itinerary(query: str) -> bool:
-    import re
-
     return bool(
         re.search(
             r"\b(itinerary|day[- ]?wise|three[- ]day|3[- ]day|sightseeing plan)\b",
@@ -199,38 +208,58 @@ def _unique_citations(hits: list[RetrievalHit]) -> list[dict[str, str]]:
     return out
 
 
+def _clean_snippet(text: str, *, max_len: int = 220) -> str:
+    """Drop markdown chrome so offline fallback reads like a short note."""
+    keep: list[str] = []
+    for line in text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            s = s.lstrip("#").strip()
+            if s.lower().startswith("visit singapore") or "educational excerpt" in s.lower():
+                continue
+        if s.lower().startswith("source:"):
+            continue
+        if s.lower().startswith("curated ") and "rag" in s.lower():
+            continue
+        keep.append(s)
+    joined = " ".join(keep) if keep else text.strip().replace("\n", " ")
+    joined = re.sub(r"\s+", " ", joined).strip()
+    if len(joined) > max_len:
+        return joined[: max_len - 1] + "…"
+    return joined
+
+
 def _summarize_hits(
     hits: list[RetrievalHit],
     *,
     query: str,
     state: SessionState,
 ) -> str:
-    lines = [f"Relevant Singapore KB excerpts for: {query}"]
-    prefer_family = state.traveler_type == "family" or "family" in (state.interests or [])
+    """Readable offline/fallback KB answer (not a raw chunk dump)."""
     prefer_indoor = state.prefer_indoor is True
-    shown = 0
+    bullets: list[str] = []
     for h in hits:
         text_l = h.text.lower()
-        tags = str((h.metadata or {}).get("topics") or "") + " " + text_l
         if prefer_indoor and "outdoor" in text_l and "indoor" not in text_l:
             continue
-        if prefer_family and "nightlife" in text_l and "family" not in tags:
-            # still allow; soft preference only
-            pass
-        snippet = h.text.strip().replace("\n", " ")
-        if len(snippet) > 280:
-            snippet = snippet[:277] + "…"
+        snippet = _clean_snippet(h.text)
+        if not snippet:
+            continue
         src = h.title or h.entity_id or h.source
-        lines.append(f"• ({src}) {snippet}")
-        shown += 1
-        if shown >= 5:
+        bullets.append(f"- **{src}** — {snippet}")
+        if len(bullets) >= 5:
             break
-    if shown == 0:
-        # fallback first hits
+    if not bullets:
         for h in hits[:3]:
-            snippet = h.text.strip().replace("\n", " ")[:280]
-            lines.append(f"• ({h.title or h.source}) {snippet}")
-    return "\n".join(lines)
+            snippet = _clean_snippet(h.text)
+            bullets.append(f"- **{h.title or h.source}** — {snippet}")
+
+    intro = (
+        f"Here is what the Singapore knowledge base covers for “{query.strip()}”:"
+    )
+    return intro + "\n\n" + "\n".join(bullets)
 
 
 def _looks_out_of_kb(query: str, hits: list[RetrievalHit]) -> bool:

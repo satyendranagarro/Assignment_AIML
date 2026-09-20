@@ -37,11 +37,11 @@ User → Streamlit → OrchestratorAgent (A0)
 
 ### Response contract
 
-Every substantive answer uses labeled blocks:
+Every substantive answer uses labeled blocks (chat-style body under each label):
 
-- `[KB fact]` — grounded in retrieval (with title/URL citations)
+- `[KB fact]` — grounded reply synthesized from retrieval (with title/URL citations); not a raw chunk dump
 - `[MCP data]` — weather or FX from MCP clients
-- `[LLM suggestion]` — planning advice (not a substitute for KB/MCP)
+- `[LLM suggestion]` — planning advice when needed (not a substitute for KB/MCP)
 - `[Error]` / `[System]` — failures and scope messages
 
 ### Intent set

@@ -91,7 +91,7 @@ def main() -> None:
     _init_session()
 
     st.title("Singapore AI Travel Planning Assistant")
-    st.caption("RAG knowledge base · MCP weather & currency · labeled KB / MCP / LLM answers")
+    st.caption("RAG · MCP weather & currency · chat-style answers with KB / MCP / LLM labels")
 
     with st.sidebar:
         st.header("Settings")

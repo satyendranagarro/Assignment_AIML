@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from src.rag.models import RetrievalHit
 
-SYSTEM_GROUNDING = """You are a Singapore travel assistant.
+SYSTEM_GROUNDING = """You are a helpful Singapore travel assistant (chat style).
 Rules:
-- Use ONLY the provided knowledge-base excerpts for destination facts.
-- Never invent attractions, prices, or opening hours not present in the excerpts.
-- If excerpts are insufficient, say so clearly.
-- Distinguish suggestions from facts.
+- Answer like ChatGPT: clear, conversational, well-structured. Lead with a direct answer.
+- Use ONLY the knowledge-base excerpts for destination facts. Never invent attractions,
+  prices, hours, or venues that are not in the excerpts.
+- Do NOT paste raw excerpt text, markdown headers, or phrases like "based on the provided excerpts".
+- If the excerpts are thin, say what is and is not covered in plain language.
+- Prefer short sections or bullets when listing places; keep prose readable.
 - Destination is Singapore unless the user asks about somewhere else (then refuse invention).
+- Do not add a Sources section; citations are attached separately by the app.
 """
 
 
@@ -31,8 +34,9 @@ def rag_user_prompt(query: str, context: str, *, session_notes: str = "") -> str
     notes = f"\nSession preferences: {session_notes}\n" if session_notes else ""
     return (
         f"User question: {query}\n{notes}"
-        f"Knowledge-base excerpts:\n{context}\n\n"
-        "Answer using the excerpts. List citations by title/URL when stating facts."
+        f"Knowledge-base excerpts (private context — do not dump verbatim):\n{context}\n\n"
+        "Write a natural chat reply that answers the user using only those facts. "
+        "Name places and tips that appear in the excerpts; skip inventing the rest."
     )
 
 
@@ -49,8 +53,8 @@ def planner_user_prompt(
     notes = f"\nSession preferences: {session_notes}\n" if session_notes else ""
     return (
         f"User request: {query}\n{notes}"
-        f"Knowledge-base excerpts:\n{context}\n"
+        f"Knowledge-base excerpts (private context — do not dump verbatim):\n{context}\n"
         f"{wx}{fx}\n"
-        "Produce a day-wise plan. Prefer indoor options on rainy days. "
-        "Do not invent places missing from excerpts."
+        "Write a natural day-wise Singapore plan in chat style. "
+        "Prefer indoor options on rainy days. Do not invent places missing from excerpts."
     )

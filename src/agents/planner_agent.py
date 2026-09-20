@@ -80,7 +80,7 @@ class CombinedPlannerAgent:
             citations = _unique_citations(hits)
             kb = LabeledBlock(
                 kind="kb_fact",
-                text=_summarize_hits(hits, query=rag_query, state=state),
+                text=_summarize_hits(hits, query=query, state=state),
                 citations=citations,
             )
             blocks.append(kb)
@@ -89,6 +89,8 @@ class CombinedPlannerAgent:
             if any(d.get("rain_likely") for d in (meta.get("forecast", {}) or {}).get("days") or []) or (
                 "indoor" in query.lower() and "outdoor" in query.lower()
             ):
+                from src.agents.rag_agent import _clean_snippet
+
                 indoor_hits = [
                     h
                     for h in hits
@@ -100,9 +102,9 @@ class CombinedPlannerAgent:
                     blocks.append(
                         LabeledBlock(
                             kind="kb_fact",
-                            text="Indoor-leaning options from KB:\n"
+                            text="Indoor-leaning options from the knowledge base:\n\n"
                             + "\n".join(
-                                f"• {h.title or h.source}: {h.text.strip()[:200]}"
+                                f"- **{h.title or h.source}** — {_clean_snippet(h.text, max_len=160)}"
                                 for h in indoor_hits[:3]
                             ),
                             citations=_unique_citations(indoor_hits),
@@ -165,15 +167,13 @@ class CombinedPlannerAgent:
             if fx_resp.error:
                 error = error or fx_resp.error
 
-        # --- Day-wise plan suggestion ---
-        plan = _day_wise_plan(hits, state, meta.get("forecast"))
-        blocks.append(LabeledBlock(kind="llm_suggestion", text=plan))
-
-        # Optional LLM narrative (skip fabricating when no hits)
+        # --- Day-wise plan: prefer one chat-style LLM suggestion ---
         provider_used = self.provider
+        plan = _day_wise_plan(hits, state, meta.get("forecast"))
+        llm_plan = ""
         if hits:
             try:
-                llm_text, provider_used = invoke_chat(
+                llm_plan, provider_used = invoke_chat(
                     [
                         ("system", SYSTEM_GROUNDING),
                         (
@@ -189,13 +189,11 @@ class CombinedPlannerAgent:
                     ],
                     provider=self.provider,
                 )
-                if llm_text and llm_text != "[fake LLM response]":
-                    blocks.append(LabeledBlock(kind="llm_suggestion", text=llm_text))
             except ConfigError as exc:
                 blocks.append(
                     LabeledBlock(
                         kind="error",
-                        text=f"LLM configuration error: {exc}. Plan above uses KB/MCP only.",
+                        text=f"LLM configuration error: {exc}. Plan below uses KB/MCP only.",
                     )
                 )
                 error = error or str(exc)
@@ -207,6 +205,11 @@ class CombinedPlannerAgent:
                     error=str(exc)[:200],
                     status="error",
                 )
+
+        if llm_plan and llm_plan != "[fake LLM response]":
+            blocks.append(LabeledBlock(kind="llm_suggestion", text=llm_plan.strip()))
+        else:
+            blocks.append(LabeledBlock(kind="llm_suggestion", text=plan))
 
         ans = render_blocks(blocks)
         log_event(

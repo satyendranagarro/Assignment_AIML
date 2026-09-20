@@ -10,8 +10,8 @@ Expected shapes for demos and graders. Live wording varies by LLM provider; **la
 
 **Expect:**
 - Intent `rag_only` (no MCP)
-- `[KB fact]` with ≥1 citation (title + URL)
-- Optional `[LLM suggestion]`
+- `[KB fact]` — natural chat-style answer grounded in KB, with ≥1 citation (title + URL)
+- Optional `[LLM suggestion]` (e.g. itinerary shaping); not a second paste of raw chunks
 
 ---
 

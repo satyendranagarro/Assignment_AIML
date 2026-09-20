@@ -94,12 +94,14 @@ class LabeledBlock:
             title = c.get("title") or "source"
             url = c.get("url") or ""
             if url:
-                cite_lines.append(f"  — {title}: {url}")
+                cite_lines.append(f"- [{title}]({url})")
             else:
-                cite_lines.append(f"  — {title}")
+                cite_lines.append(f"- {title}")
+        # Label on its own line so the body reads like a normal chat reply.
         if cite_lines:
-            return f"{prefix} {body}\n" + "\n".join(cite_lines)
-        return f"{prefix} {body}"
+            cites = "**Sources**\n" + "\n".join(cite_lines)
+            return f"{prefix}\n\n{body}\n\n{cites}"
+        return f"{prefix}\n\n{body}"
 
 
 @dataclass
