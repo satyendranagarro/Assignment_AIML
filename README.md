@@ -1,98 +1,106 @@
 # AI Travel Planning Assistant (Singapore)
 
-Context-aware travel assistant: **RAG knowledge base** + **MCP weather/currency** + **combined itineraries**.
+A context-aware travel assistant for **Singapore**. It answers questions using a grounded knowledge base, live weather and currency tools, and an LLM — then labels what came from where.
 
-Assignment brief: [`Requirement/AI_Travel_Planning_Assistant_Assignment.pdf`](Requirement/AI_Travel_Planning_Assistant_Assignment.pdf)
+**What it does**
 
-## Status
+- **RAG** over a Singapore travel knowledge base (Chroma vector store + Neo4j graph)
+- **Live tools** for weather (Open-Meteo) and currency (Frankfurter) via MCP-style clients
+- **Combined planning** (e.g. weather-aware itineraries) by routing intent to specialist agents
+- **Streamlit UI** with a toggleable LLM provider (OpenAI, Gemini, Cursor, or Ollama)
 
-**All phases complete (0 → 6).** See [`DECISIONS.md`](DECISIONS.md).
+Out of scope: booking, payments, navigation, and reservations.
 
-| Phase | Status |
-|-------|--------|
-| 0 Skill + scaffold | done |
-| 1 Data pipeline | done |
-| 1.5 Knowledge IaC (Neo4j + Chroma) | done |
-| 2 Crawl | done |
-| 3 Ontology | done |
-| 4 Load KB into infra | done |
-| 5 Agents + MCP + UI | done |
-| 6 Deliverables + runtime IaC | done |
+---
 
 ## Architecture
 
-| Doc | Content |
-|-----|---------|
-| [`docs/architecture/00-overview.md`](docs/architecture/00-overview.md) | System context |
-| [`docs/architecture/05-agents.md`](docs/architecture/05-agents.md) | Agents A0–A4 |
-| [`docs/architecture/06-ops-and-acceptance.md`](docs/architecture/06-ops-and-acceptance.md) | Ops + acceptance |
-| [`infra/README.md`](infra/README.md) | Compose units (knowledge + MCP + app) |
-| [`docs/USE_CASES.md`](docs/USE_CASES.md) | Use-case pass bar |
-| [`docs/SAMPLE_QA.md`](docs/SAMPLE_QA.md) | Sample prompts / expected labels |
-| [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md) | Live / offline demo steps |
+![Architecture](docs/architecture/diagrams/architecture.png)
 
-## Stack (A)
+```mermaid
+flowchart TB
+  User([User]) --> UI[Streamlit UI]
+  UI --> A0[Orchestrator A0]
 
-LangChain · OpenAI / Gemini / Cursor · Chroma · Neo4j · Streamlit · MCP (weather + currency)
+  A0 -->|rag_only| A1[RAG Knowledge Agent]
+  A0 -->|weather_only| A2[Weather Tool Agent]
+  A0 -->|currency_only| A3[Currency Tool Agent]
+  A0 -->|combined| A4[Combined Planner Agent]
 
-Agents reuse the **same** Neo4j/Chroma that Phase 4 loads (Phase 1.5 Compose).
+  A1 --> HR[Hybrid Retriever]
+  A4 --> A1
+  A4 --> A2
+  A4 --> A3
 
-## Quick start
+  HR --> Chroma[(Chroma)]
+  HR --> Neo4j[(Neo4j)]
 
-Requires **Python 3.10+** (3.12 recommended). Set a real provider key in `.env` (see `.env.example`).
+  A2 --> Wx[Weather MCP]
+  A3 --> Fx[Currency MCP]
+  Wx --> OpenMeteo[Open-Meteo]
+  Fx --> Frankfurter[Frankfurter]
+
+  A1 --> LLM[LLM Factory]
+  A2 --> LLM
+  A3 --> LLM
+  A4 --> LLM
+  LLM --> Providers[OpenAI / Gemini / Cursor / Ollama]
+```
+
+**Request path:** Streamlit → Orchestrator (intent router) → one of A1–A4 → retrieve and/or call live tools → LLM → labeled answer.
+
+**Knowledge build:** crawl/normalize sources → ontology → chunk + embed into Chroma and load entities into Neo4j. Agents use the same stores the pipeline loads.
+
+---
+
+## How to run
+
+Requires **Python 3.10+** (3.12 recommended) and an API key for your chosen LLM provider.
+
+### 1. Setup
 
 ```bash
 cp .env.example .env
-# Set OPENAI_API_KEY (or GOOGLE_API_KEY / CURSOR_API_KEY / Ollama) and LLM_PROVIDER
+# Set OPENAI_API_KEY (or GOOGLE_API_KEY / CURSOR_API_KEY) and LLM_PROVIDER
+
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+```
 
-# Index KB (if data/chroma empty)
+### 2. Build the knowledge base (offline / local files)
+
+```bash
 python scripts/crawl.py --force-manual
 python scripts/normalize.py
 python scripts/build_ontology.py
 python scripts/build_kb.py --embeddings openai --gate
 python scripts/load_neo4j.py --memory
+```
 
+### 3. Start the app
+
+```bash
 streamlit run app/streamlit_app.py
 ```
 
-Try prompts in [`docs/SAMPLE_QA.md`](docs/SAMPLE_QA.md). Checklist: [`docs/DEMO_CHECKLIST.md`](docs/DEMO_CHECKLIST.md).
+### Optional: full stack with Docker
 
 ```bash
-pytest tests/ -q
-```
-
-## Full local demo (Compose)
-
-```bash
-# 1. Knowledge stores
 export NEO4J_PASSWORD=changeme
 docker compose -f infra/compose.yml up -d
 
-# 2. Load into the same infra
 export CHROMA_HOST=localhost CHROMA_PORT=8000
 python scripts/build_kb.py --embeddings openai --gate
 python scripts/load_neo4j.py --require-neo4j
 
-# 3. Optional MCP sidecars + Streamlit container
-docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
+streamlit run app/streamlit_app.py
+# Or: docker compose -f infra/compose.yml --profile mcp --profile app up -d --build
 # UI: http://localhost:8501
-# Or on host: streamlit run app/streamlit_app.py
 ```
 
-Profiles: `pipeline` (kb job) · `mcp` (weather/currency) · `app` (Streamlit).
+### Offline demo (no live APIs)
 
-## MCP notes
-
-- Agents use **in-process** Open-Meteo / Frankfurter clients by default.
-- MCP down → explicit error; **no** fabricated temperatures or FX rates.
-- Stdio servers: `python -m mcp_servers.weather.server` / `currency.server`.
-
-## LLM toggle
-
-`LLM_PROVIDER=openai|gemini|cursor|ollama` (Streamlit sidebar overrides). Missing key → config error; no silent fallback. See `.env.example`.
-
-## Out of scope
-
-Booking, payments, navigation, reservations.
+```bash
+export LLM_PROVIDER=fake EMBEDDING_PROVIDER=fake MCP_MOCK_MODE=true
+streamlit run app/streamlit_app.py
+```
