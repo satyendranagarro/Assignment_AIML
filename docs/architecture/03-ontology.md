@@ -76,4 +76,4 @@ pytest tests/test_phase3_ontology.py -q
 
 ## Phase 3 status
 
-**Complete** when `python scripts/build_ontology.py` exits 0 and `DECISIONS.md` records the gate. Next: Phase 4 stores (`04-stores.md`).
+**Complete** when `python scripts/build_ontology.py` exits 0 and `DECISIONS.md` records the gate. Phase 4 stores: see [`04-stores.md`](04-stores.md).

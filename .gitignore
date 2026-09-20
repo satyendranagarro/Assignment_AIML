@@ -31,11 +31,13 @@ htmlcov/
 
 # Knowledge-base artifacts (rebuild from pipeline)
 data/chroma/
+data/.tmp_phase4_chroma/
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 # data/manual/ is committed (ToS / offline fallback packs)
+logs/
 
 # Keep empty dirs
 !data/chroma/.gitkeep

@@ -32,7 +32,7 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Active phase | **4 — Stores** |
+| Active phase | **5 — Agents** |
 | Last updated | 2026-09-20 |
 
 ## Phase gate outcomes
@@ -43,7 +43,7 @@ See `.env.example`.
 | 1 Data pipeline | **done** | 4 sources in `data/sources.yaml`; coverage matrix maps all required topics; ingest/normalize + gate tests pass. Topics still `planned` until crawl. **Decision:** proceed to Phase 2 targeted crawl of allowlisted seeds; Visit Singapore ToS → manual dump fallback if blocked. |
 | 2 Crawl | **done** | Allowlisted BFS crawl (`src/crawl/`, `scripts/crawl.py`): `max_depth=null` (unbounded) + `max_pages=100` per source; Visit Singapore stored as educational excerpts. Live Wikivoyage often HTTP 403 and Visit Singapore thin SPA → committed `data/manual/` dumps installed automatically; required + optional topic buckets green after normalize. **Decision:** clear place/district/transport entities in dumps → proceed to Phase 3 full ontology. |
 | 3 Ontology | **done** | Taxonomy + schema + gazetteer; `ontology/entities.json` has 37 entities, 20 spot-checked with evidence; all 5 classes covered. **Decision:** dense typed graph → Phase 4 hybrid (Chroma + Neo4j GraphRAG). |
-| 4 Stores | pending | — |
+| 4 Stores | **done** | Chroma KB + HybridRetriever; Neo4j loader with in-memory fallback; retrieval smoke + graph checks pass offline (`--embeddings fake`). **Decision:** graph expansions useful → keep **hybrid** for Phase 5 A1/A4. |
 | 5 Agents | pending | — |
 | 6 Deliverables | pending | — |
 
@@ -51,8 +51,8 @@ See `.env.example`.
 
 | Field | Value |
 |-------|-------|
-| Mode | `hybrid` (target; confirm after Phase 4 smoke) |
-| Rationale | Phase 3 produced dense Attraction/District/Transport/ItineraryDay/Tip entities with `located_in` / `nearby` / `part_of_itinerary` relations suitable for Neo4j expansion alongside Chroma. |
+| Mode | `hybrid` |
+| Rationale | Phase 4 smoke: Chroma citations + ontology graph expansion (Neo4j when `NEO4J_PASSWORD` set, else in-memory) both return hits for attraction/transport/district queries. |
 
 ## Notes
 
